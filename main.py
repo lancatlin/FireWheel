@@ -35,16 +35,21 @@ class Main:
                 if e.type == QUIT:
                     exit()
                 #設定全螢幕切換
-                elif e.type is KEYDOWN and e.key == K_F11:
-                    if self.screen.get_flags() & FULLSCREEN:
-                        self.screen = pygame.display.set_mode(wh)
-                        print(self.screen.get_size())
-                    else:
-                        self.screen = pygame.display.set_mode(wh, FULLSCREEN)
-                        print(self.screen.get_size())
+                elif e.type is KEYDOWN :
+                    if e.key == K_F11:
+                        if self.screen.get_flags() & FULLSCREEN:
+                            self.screen = pygame.display.set_mode(wh)
+                            print(self.screen.get_size())
+                        else:
+                            self.screen = pygame.display.set_mode(wh, FULLSCREEN)
+                            print(self.screen.get_size())
 
-                elif e.type is KEYDOWN and e.key == K_F12:
-                    exit()
+                    elif e.key == K_F12:
+                        exit()
+                    
+                    elif e.key == K_SPACE:
+                        self.player.shut()
+                
             self.update()
             self.repaint(self.screen)
             self.clock.tick(30)
