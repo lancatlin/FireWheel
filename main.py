@@ -17,6 +17,7 @@ class Main:
         pygame.display.set_caption('FireWhell火輪手槍')
 
         self.player = Player(self)
+        self.clock = pygame.time.Clock()
 
     def repaint(self, screen):
         screen.fill(bg)
@@ -26,7 +27,7 @@ class Main:
         pygame.display.update()
 
     def update(self):
-        pass
+        self.player.update()
 
     def begin(self):
         while True:
@@ -44,7 +45,9 @@ class Main:
 
                 elif e.type is KEYDOWN and e.key == K_F12:
                     exit()
+            self.update()
             self.repaint(self.screen)
+            self.clock.tick(30)
 
 
 root = Main()
