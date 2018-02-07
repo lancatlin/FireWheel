@@ -1,5 +1,8 @@
 import json
+import pygame
 
+
+pygame.init()
 
 class GameObject:
     setting = json.load(open('setting.json', 'r'))
@@ -19,4 +22,9 @@ class GameObject:
 
     def kill(self):
         pass
+    
+    @staticmethod
+    def iskey(key):
+        all_key = pygame.key.get_pressed()
+        return all_key[key]
 

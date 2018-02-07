@@ -20,6 +20,7 @@ class Player(GameObject):
         self.color = [255, 0, 0]
         self.gun = Gun(self)
         self.bullet = []
+        self.shuting = False
 
     def repaint(self, screen):
         pygame.draw.circle(screen, self.color, (self.x, self.y), self.r)
@@ -31,10 +32,16 @@ class Player(GameObject):
         self.gun.update()
         for b in self.bullet:
             b.update()
+        if self.shuting:
+            self.shut()
 
     def shut(self):
-        self.bullet.append(Bullet(self))
-        self.gun.shut()
+        if not self.shuting:
+            self.shuting = True
+            self.gun.shuting = True
+        elif not self.iskey(K_SPACE):
+            self.bullet.append(Bullet(self))
+            self.shuting = False
 
 
 class Gun(GameObject):
@@ -42,6 +49,9 @@ class Gun(GameObject):
         super().__init__(master)
         self.x = self.master.x
         self.y = self.master.y
+        self.change = speed
+        self.shuting = False
+        self.last_time = 0
 
     def repaint(self, screen):
         xy = (int(self.x + math.cos(self.angle) * distance), int(self.y + math.sin(self.angle) * distance))
@@ -50,10 +60,24 @@ class Gun(GameObject):
     def update(self):
         self.x = self.master.x
         self.y = self.master.y
-        self.angle += speed
+        self.angle += self.change
+        if self.shuting:
+            self.shut()
 
     def shut(self):
-        pass
+        #如果第一次按下
+        if self.last_time == 0:
+            self.change *= -0.25
+            self.last_time = pygame.time.get_ticks()
+        #如果超過一秒，換方向
+        elif pygame.time.get_ticks() - self.last_time > 500:
+            self.change *= -1
+            self.last_time = pygame.time.get_ticks()
+        #如果按鍵已放開
+        elif not Gun.iskey(K_SPACE):
+            self.shuting = False
+            self.change *= 4
+            self.last_time = 0
 
 
 class Bullet(GameObject):
