@@ -85,6 +85,14 @@ class Field(GameObject):
         for w in self.live_walls:
             if w.touch(person):
                 return True
+        for r in self.edge:
+            x = min(r.x+r.w, person.x)
+            x = max(r.x, x)
+            y = min(r.y+r.h, person.y)
+            y = max(r.y, y)
+            distance = ((person.x - x)**2 + (person.y - y)**2) ** 0.5
+            if distance < person.r:
+                return True
         else:
              return False
 

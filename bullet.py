@@ -10,18 +10,20 @@ class Bullet(GameObject):
         super().__init__(master)
         self.x = master.x
         self.y = master.y
+        self.r = 7
         self.angle = master.gun.angle
         self.color = [255, 0, 255]
-        self.range = 500
+        self.range = 700
         self.move(self.angle, 80)
 
     def repaint(self, screen, position):
         xy = super().repaint(screen, position)
-        pygame.draw.circle(screen, self.color, xy, 5)
+        pygame.draw.circle(screen, self.color, xy, self.r)
 
     def update(self):
-        self.move(self.angle, 20)
-        if self.range < 0:
+        self.move(self.angle, 30)
+        field = self.master.master.field
+        if self.range < 0 or field.touch(self):
             self.kill()
 
     def move(self, angle, step):
