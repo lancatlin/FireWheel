@@ -4,9 +4,9 @@ from pygame import Rect
 
 from game_object import GameObject
 
-w = 70
-h = 500
-g = 200
+w = 80
+h = 600
+g = 250
 
 class Wall(GameObject):
     def __init__(self, master, position):
@@ -27,23 +27,18 @@ class Field(GameObject):
     def __init__(self, master):
         super().__init__(master)
         self.color = [255, 255, 255]
-        self.w = 10000
-        self.h = 10000
+        self.w = 5000
+        self.h = 5000
         self.edge = [Rect(-self.w, -self.h, 2*self.w, 100),
                      Rect(-self.w, -self.h, 100, 2*self.h),
                      Rect(-self.w, self.h-100, 2*self.w, 100),
                      Rect(self.w-100, -self.h, 100, 2*self.h)]
         self.walls = []
         mid = (0, 0)
-        a = (w + g) / 2
-        b = (w + g + h) / 2
-        for i in range(10):
-            self.add_wall(mid)
-            mid = (mid[0], mid[1] + 2*g + 2*h - 2*w)
-        mid = (0, 0)
-        for i in range(10):
-            self.add_wall(mid)
-            mid = (mid[0] + 2*g + 2*h, mid[1])
+        for i in range(-self.w + 2*h, self.w - 2*h, 2*h + g):
+            for j in range(-self.h + 2*h, self.h - 2*h, 2*h + g):
+                mid = (i, j)
+                self.add_wall(mid)
     
     def repaint(self, screen, position):
         x, y = super().repaint(screen, position)
