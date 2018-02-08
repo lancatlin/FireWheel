@@ -3,6 +3,7 @@ from pygame.locals import *
 import json
 
 from player import Player
+from wall import Wall
 
 setting = json.load(open('setting.json', 'r'))
 bg = setting['bg']
@@ -17,6 +18,7 @@ class Main:
         pygame.display.set_caption('FireWhell火輪手槍')
 
         self.player = Player(self)
+        self.t_wall = Wall(self, (100, 100)) 
         self.clock = pygame.time.Clock()
 
     def repaint(self, screen):
@@ -25,6 +27,7 @@ class Main:
         screen.fill(bg)
 
         self.player.repaint(screen, position)
+        self.t_wall.repaint(screen, position)
         pygame.display.flip()
         pygame.display.update()
 
