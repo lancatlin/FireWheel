@@ -15,13 +15,14 @@ class Player(GameObject):
     '''玩家物件，可以上下左右移動'''
     def __init__(self, master):
         super().__init__(master)
-        self.x = 0
-        self.y = 0
+        self.x = 100
+        self.y = 100
         self.r = 30
         self.color = [255, 0, 0]
         self.gun = Gun(self)
         self.bullet = []
         self.shuting = False
+        self.speed = 8
 
     def repaint(self, screen, position):
         '''
@@ -34,11 +35,21 @@ class Player(GameObject):
             b.repaint(screen, position)
 
     def update(self):
-        self.gun.update()
         for b in self.bullet:
             b.update()
         if self.shuting:
             self.shut()
+        
+        if self.iskey(K_w):
+            self.y -= self.speed
+        if self.iskey(K_s):
+            self.y += self.speed
+        if self.iskey(K_d):
+            self.x += self.speed
+        if self.iskey(K_a):
+            self.x -= self.speed
+        
+        self.gun.update()
 
     def shut(self):
         if not self.shuting:

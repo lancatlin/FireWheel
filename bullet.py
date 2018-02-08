@@ -11,7 +11,7 @@ class Bullet(GameObject):
         self.x = master.x
         self.y = master.y
         self.angle = master.gun.angle
-        self.color = [255, 255, 255]
+        self.color = [255, 0, 255]
         self.range = 500
         self.move(self.angle, 80)
 
@@ -20,7 +20,7 @@ class Bullet(GameObject):
         pygame.draw.circle(screen, self.color, xy, 5)
 
     def update(self):
-        self.move(self.angle, 15)
+        self.move(self.angle, 20)
         if self.range < 0:
             self.kill()
 

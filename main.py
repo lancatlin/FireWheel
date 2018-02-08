@@ -26,8 +26,8 @@ class Main:
         position = (self.player.x, self.player.y)
         screen.fill(bg)
 
-        self.player.repaint(screen, position)
         self.t_wall.repaint(screen, position)
+        self.player.repaint(screen, position)
         pygame.display.flip()
         pygame.display.update()
 

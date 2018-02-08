@@ -4,8 +4,8 @@ from pygame.locals import *
 from game_object import GameObject
 
 w = 70
-h = 400
-g = 125
+h = 500
+g = 200
 
 class Wall(GameObject):
     def __init__(self, master, position):
