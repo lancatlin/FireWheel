@@ -39,6 +39,8 @@ class Field(GameObject):
             for j in range(-self.h + 2*h, self.h - 2*h, 2*h + g):
                 mid = (i, j)
                 self.add_wall(mid)
+        self.live_walls = []
+        self.last_time = 0
     
     def repaint(self, screen, position):
         x, y = super().repaint(screen, position)
@@ -47,7 +49,7 @@ class Field(GameObject):
             paint_e.x += x
             paint_e.y += y
             pygame.draw.rect(screen, self.color, paint_e)
-        for wall in self.walls:
+        for wall in self.live_walls:
             wall.repaint(screen, position)
     
     def add_wall(self, mid):
@@ -57,3 +59,12 @@ class Field(GameObject):
         self.walls.append(Wall(self, (mid[0] - b,mid[1] + a)))
         self.walls.append(Wall(self, (mid[0] - a,mid[1] - b)))
         self.walls.append(Wall(self, (mid[0] + b,mid[1] - a)))
+
+    def update(self):
+        if pygame.time.get_ticks() - self.last_time > 500:
+            p = self.master.player
+            position = p.x, p.y
+            self.live_walls = [w for w in self.walls if abs(w.x-p.x) < 1500 and abs(w.y-p.y) < 1500 ]
+            print(len(self.live_walls))
+            self.last_time = pygame.time.get_ticks()
+

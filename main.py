@@ -18,7 +18,7 @@ class Main:
         pygame.display.set_caption('FireWhell火輪手槍')
 
         self.player = Player(self)
-        self.t_wall = wall.Field(self)
+        self.field = wall.Field(self)
         self.clock = pygame.time.Clock()
 
     def repaint(self, screen):
@@ -26,13 +26,14 @@ class Main:
         position = (self.player.x, self.player.y)
         screen.fill(bg)
 
-        self.t_wall.repaint(screen, position)
+        self.field.repaint(screen, position)
         self.player.repaint(screen, position)
         pygame.display.flip()
         pygame.display.update()
 
     def update(self):
         self.player.update()
+        self.field.update()
 
     def begin(self):
         while True:
