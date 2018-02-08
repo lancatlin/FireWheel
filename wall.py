@@ -32,7 +32,6 @@ class Wall(GameObject):
             y = max(r.y, y)
             distance = ((person.x - x)**2 + (person.y - y)**2) ** 0.5
             if distance < person.r:
-                print(distance)
                 return True
         else:
             return False
