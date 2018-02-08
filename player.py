@@ -48,9 +48,9 @@ class Player(GameObject):
             self.x += self.speed
         if self.iskey(K_a):
             self.x -= self.speed
-        
+        self.master.field.touch(self)
         self.gun.update()
-
+        
     def shut(self):
         if not self.shuting:
             self.shuting = True

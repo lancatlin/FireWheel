@@ -13,6 +13,8 @@ class Wall(GameObject):
         super().__init__(master)
         self.x, self.y = position
         self.color = [255, 255, 255]
+        self.rects = [Rect(self.x - w/2, self.y - h/2, w, h),
+                      Rect(self.x - h/2, self.y - w/2, h, w)]
     
     def update(self):
         pass
@@ -21,6 +23,19 @@ class Wall(GameObject):
         x, y = super().repaint(screen, position)
         pygame.draw.rect(screen, self.color, (x - w/2, y - h/2, w, h))
         pygame.draw.rect(screen, self.color, (x - h/2, y - w/2, h, w))
+
+    def touch(self, person):
+        for r in self.rects:
+            x = min(r.x+r.w, person.x)
+            x = max(r.x, x)
+            y = min(r.y+r.h, person.y)
+            y = max(r.y, y)
+            distance = ((person.x - x)**2 + (person.y - y)**2) ** 0.5
+            if distance < person.r:
+                print(distance)
+                return True
+        else:
+            return False
 
         
 class Field(GameObject):
@@ -65,6 +80,12 @@ class Field(GameObject):
             p = self.master.player
             position = p.x, p.y
             self.live_walls = [w for w in self.walls if abs(w.x-p.x) < 1500 and abs(w.y-p.y) < 1500 ]
-            print(len(self.live_walls))
             self.last_time = pygame.time.get_ticks()
+
+    def touch(self, person):
+        for w in self.live_walls:
+            if w.touch(person):
+                return True
+        else:
+             return False
 
