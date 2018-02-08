@@ -20,9 +20,11 @@ class Main:
         self.clock = pygame.time.Clock()
 
     def repaint(self, screen):
+        '''將各個物件顯示到螢幕上。position為視野的座標，將此變數傳到各個物件，使物件在相對於座標的地方進行繪圖。repaint繼承自GameObject'''
+        position = (self.player.x, self.player.y)
         screen.fill(bg)
 
-        self.player.repaint(screen)
+        self.player.repaint(screen, position)
         pygame.display.flip()
         pygame.display.update()
 

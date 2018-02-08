@@ -4,6 +4,7 @@ import json
 import math
 
 from game_object import GameObject
+from bullet import Bullet
 
 
 wh = GameObject.setting['wh']
@@ -14,19 +15,23 @@ class Player(GameObject):
     '''玩家物件，可以上下左右移動'''
     def __init__(self, master):
         super().__init__(master)
-        self.x = int(wh[0] / 2)
-        self.y = int(wh[1] / 2)
+        self.x = 0
+        self.y = 0
         self.r = 30
         self.color = [255, 0, 0]
         self.gun = Gun(self)
         self.bullet = []
         self.shuting = False
 
-    def repaint(self, screen):
-        pygame.draw.circle(screen, self.color, (self.x, self.y), self.r)
-        self.gun.repaint(screen)
+    def repaint(self, screen, position):
+        '''
+        在此實做player的座標轉換是為了未來的鏡頭移動所準備，在實做此功能後，未來可維護性較高
+        '''
+        x, y = super().repaint(screen, position)
+        pygame.draw.circle(screen, self.color, (x, y), self.r)
+        self.gun.repaint(screen, position)
         for b in self.bullet:
-            b.repaint(screen)
+            b.repaint(screen, position)
 
     def update(self):
         self.gun.update()
@@ -53,8 +58,9 @@ class Gun(GameObject):
         self.shuting = False
         self.last_time = 0
 
-    def repaint(self, screen):
-        xy = (int(self.x + math.cos(self.angle) * distance), int(self.y + math.sin(self.angle) * distance))
+    def repaint(self, screen, position):
+        x, y = super().repaint(screen, position)
+        xy = (int(x + math.cos(self.angle) * distance), int(y + math.sin(self.angle) * distance))
         pygame.draw.circle(screen, self.master.color, xy, 10)
 
     def update(self):
@@ -79,29 +85,4 @@ class Gun(GameObject):
             self.change *= 4
             self.last_time = 0
 
-
-class Bullet(GameObject):
-    def __init__(self, master):
-        super().__init__(master)
-        self.x = master.x
-        self.y = master.y
-        self.angle = master.gun.angle
-        self.color = [255, 255, 255]
-        self.move(self.angle, 80)
-
-    def repaint(self, screen):
-        xy = int(self.x), int(self.y)
-        pygame.draw.circle(screen, self.color, xy, 5)
-
-    def update(self):
-        self.move(self.angle, 10)
-        if self.x < 0 or self.x > wh[0] or self.y < 0 or self.y > wh[1]:
-            self.kill()
-
-    def move(self, angle, step):
-        self.x += step * math.cos(angle)
-        self.y += step * math.sin(angle)
-    
-    def kill(self):
-        self.master.bullet.remove(self)
 

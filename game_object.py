@@ -14,8 +14,9 @@ class GameObject:
         self.angle = 0
         self.color = []
 
-    def repaint(self, screen):
-        pass
+    def repaint(self, screen, position):
+        return int(self.x - position[0] + self.setting['wh'][0]/2), \
+        int(self.y - position[1] + self.setting['wh'][1]/2)
 
     def update(self):
         pass
