@@ -32,6 +32,13 @@ class MonsterManager(GameObject):
         for z in self.live_zombies:
             z.update()
 
+    def touch(self, person):
+        for z in self.live_zombies:
+            if z.touch(person) and z is not person:
+                return True
+        else:
+            return False
+
 
 class Monster(GameObject):
     '''怪物的父類別'''
@@ -71,11 +78,15 @@ class Monster(GameObject):
         x, y = self.x-position[0], self.y-position[1]
         distance = (x ** 2 + y ** 2) ** 0.5
         self.x -= x/distance * step
-        if self.field.touch(self):
+        if self.field.touch(self) or self.master.touch(self):
             self.x += x/distance * step
         self.y -= y/distance * step
-        if self.field.touch(self):
+        if self.field.touch(self) or self.master.touch(self):
             self.y += y/distance * step
+
+    def touch(self, person):
+        distance = ((person.x - self.x)**2 + (person.y - self.y)**2) ** 0.5
+        return True if distance < self.r+person.r else False
 
 
 class Zombie(Monster):
