@@ -37,8 +37,6 @@ class Player(GameObject):
     def update(self):
         for b in self.bullet:
             b.update()
-        if self.shuting:
-            self.shut()
         
         change = [0, 0]
         if self.iskey(K_w):
@@ -56,14 +54,16 @@ class Player(GameObject):
         while self.master.field.touch(self):
             self.y -= change[1]*1
 
+        if self.shuting:
+            self.shut(change)
         self.gun.update()
         
-    def shut(self):
+    def shut(self, change=(0, 0)):
         if not self.shuting:
             self.shuting = True
             self.gun.shuting = True
         elif not self.iskey(K_SPACE):
-            self.bullet.append(Bullet(self))
+            self.bullet.append(Bullet(self, change))
             self.shuting = False
 
 
