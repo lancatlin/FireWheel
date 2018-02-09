@@ -1,9 +1,11 @@
+#-*- coding: utf-8 -*-
 import pygame
 from pygame.locals import *
 import json
 
 from player import Player
 import wall
+import monster
 
 setting = json.load(open('setting.json', 'r'))
 bg = setting['bg']
@@ -19,6 +21,7 @@ class Main:
 
         self.player = Player(self)
         self.field = wall.Field(self)
+        self.zombie = monster.Zombie(self)
         self.clock = pygame.time.Clock()
 
     def repaint(self, screen):
@@ -28,12 +31,14 @@ class Main:
 
         self.field.repaint(screen, position)
         self.player.repaint(screen, position)
+        self.zombie.repaint(screen, position)
         pygame.display.flip()
         pygame.display.update()
 
     def update(self):
         self.player.update()
         self.field.update()
+        self.zombie.update()
 
     def begin(self):
         while True:
