@@ -26,7 +26,6 @@ class MonsterManager(GameObject):
             self.live_zombies = [z for z in self.zombies \
             if ((z.x-p.x)**2+(z.y-p.y)**2)**0.5 < 2000 ]
             self.last_time = pygame.time.get_ticks()
-            print(len(self.live_zombies))
         elif len(self.zombies) < z_capped:
             self.zombies.append(Zombie(self))
         for z in self.live_zombies:
@@ -42,7 +41,7 @@ class MonsterManager(GameObject):
 
 class Monster(GameObject):
     '''怪物的父類別'''
-    def __init__(self, master, position=None):
+    def __init__(self, master, position=None, color=None):
         super().__init__(master)
         self.player = master.player
         self.field = self.master.master.field
@@ -50,6 +49,10 @@ class Monster(GameObject):
         self.angle = 0
         self.color = [0, 255, 255]
         self.r = 30
+        if color:
+            self.color = color
+        else:
+            self.color = [random.randint(100, 255) for i in range(3)]
         if position:
             self.x, self.y = position
         else:
