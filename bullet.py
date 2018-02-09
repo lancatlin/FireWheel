@@ -26,7 +26,8 @@ class Bullet(GameObject):
         self.y += self.change[1]
         self.move(self.angle, 30)
         field = self.master.master.field
-        if self.range < 0 or field.touch(self):
+        monster = self.master.master.monster
+        if self.range < 0 or field.touch(self) or monster.touch(self):
             self.kill()
 
     def move(self, angle, step):

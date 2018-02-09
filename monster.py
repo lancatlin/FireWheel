@@ -22,9 +22,7 @@ class MonsterManager(GameObject):
 
     def update(self):
         if pygame.time.get_ticks() - self.last_time > 1000:
-            p = self.player
-            self.live_zombies = [z for z in self.zombies \
-            if ((z.x-p.x)**2+(z.y-p.y)**2)**0.5 < 2000 ]
+            self.update_live()
             self.last_time = pygame.time.get_ticks()
         elif len(self.zombies) < z_capped:
             self.zombies.append(Zombie(self))
@@ -34,9 +32,17 @@ class MonsterManager(GameObject):
     def touch(self, person):
         for z in self.live_zombies:
             if z.touch(person) and z is not person:
+                if person in self.player.bullet:
+                    z.kill()
                 return True
         else:
             return False
+
+    def update_live(self):
+        p = self.player
+        self.live_zombies = [z for z in self.zombies \
+        if ((z.x-p.x)**2+(z.y-p.y)**2)**0.5 < 2000 ]
+
 
 
 class Monster(GameObject):
@@ -98,4 +104,8 @@ class Zombie(Monster):
 
     def update(self):
         self.near((self.player.x, self.player.y), self.speed)
+
+    def kill(self):
+        self.master.zombies.remove(self)
+        self.master.update_live()
 
