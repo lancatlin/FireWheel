@@ -13,6 +13,7 @@ class GameObject:
         self.y = 0
         self.angle = 0
         self.color = []
+        self.last_time = 0
 
     def repaint(self, screen, position):
         return int(self.x - position[0] + self.setting['wh'][0]/2), \
@@ -28,4 +29,6 @@ class GameObject:
     def iskey(key):
         all_key = pygame.key.get_pressed()
         return all_key[key]
-
+    
+    def delay(self, time):
+        return True if pygame.time.get_ticks() - self.last_time > time else False

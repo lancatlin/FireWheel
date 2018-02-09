@@ -23,6 +23,7 @@ class Player(GameObject):
         self.bullet = []
         self.shuting = False
         self.speed = 10
+        self.blood = 10
 
     def repaint(self, screen, position):
         '''
@@ -35,6 +36,10 @@ class Player(GameObject):
             b.repaint(screen, position)
 
     def update(self):
+        if self.delay(1000) and self.master.monster.touch(self):
+            self.last_time = pygame.time.get_ticks()
+            self.blood -= 1
+            print(self.blood)
         for b in self.bullet:
             b.update()
         
