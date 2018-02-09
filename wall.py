@@ -41,8 +41,7 @@ class Field(GameObject):
     def __init__(self, master):
         super().__init__(master)
         self.color = [255, 255, 255]
-        self.w = 5000
-        self.h = 5000
+        self.w, self.h = self.setting['field_wh']
         self.edge = [Rect(-self.w, -self.h, 2*self.w, 100),
                      Rect(-self.w, -self.h, 100, 2*self.h),
                      Rect(-self.w, self.h-100, 2*self.w, 100),
@@ -77,11 +76,11 @@ class Field(GameObject):
     def update(self):
         if pygame.time.get_ticks() - self.last_time > 500:
             p = self.master.player
-            position = p.x, p.y
             self.live_walls = [w for w in self.walls if abs(w.x-p.x) < 1500 and abs(w.y-p.y) < 1500 ]
             self.last_time = pygame.time.get_ticks()
 
-    def touch(self, person):
+    def touch(self, person, a=False):
+        array = self.walls if a  else self.live_walls
         for w in self.live_walls:
             if w.touch(person):
                 return True

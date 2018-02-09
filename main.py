@@ -21,7 +21,7 @@ class Main:
 
         self.player = Player(self)
         self.field = wall.Field(self)
-        self.zombie = monster.Zombie(self)
+        self.monster = monster.MonsterManager(self)
         self.clock = pygame.time.Clock()
 
     def repaint(self, screen):
@@ -31,14 +31,14 @@ class Main:
 
         self.field.repaint(screen, position)
         self.player.repaint(screen, position)
-        self.zombie.repaint(screen, position)
+        self.monster.repaint(screen, position)
         pygame.display.flip()
         pygame.display.update()
 
     def update(self):
         self.player.update()
         self.field.update()
-        self.zombie.update()
+        self.monster.update()
 
     def begin(self):
         while True:

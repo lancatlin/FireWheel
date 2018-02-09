@@ -1,19 +1,56 @@
 import pygame
 from pygame.locals import *
 import math
+import random
 
 from game_object import GameObject
 
 
+z_capped = 50
+
+class MonsterManager(GameObject):
+    def __init__(self, master):
+        self.master = master
+        self.player = master.player
+        self.last_time = 0
+        self.zombies = []
+        self.live_zombies = []
+
+    def repaint(self, screen, position):
+        for z in self.live_zombies:
+            z.repaint(screen, position)
+
+    def update(self):
+        if pygame.time.get_ticks() - self.last_time > 1000:
+            p = self.player
+            self.live_zombies = [z for z in self.zombies \
+            if ((z.x-p.x)**2+(z.y-p.y)**2)**0.5 < 2000 ]
+            self.last_time = pygame.time.get_ticks()
+            print(len(self.live_zombies))
+        elif len(self.zombies) < z_capped:
+            self.zombies.append(Zombie(self))
+        for z in self.live_zombies:
+            z.update()
+
+
 class Monster(GameObject):
     '''怪物的父類別'''
-    def __init__(self, master):
+    def __init__(self, master, position=None):
         super().__init__(master)
         self.player = master.player
+        self.field = self.master.master.field
         self.speed = 8
         self.angle = 0
         self.color = [0, 255, 255]
         self.r = 30
+        if position:
+            self.x, self.y = position
+        else:
+            w, h = self.setting['field_wh']
+            self.x = random.randint(-w+1000, w-1000)
+            self.y = random.randint(-h+1000, h-1000)
+        while self.field.touch(self, True):
+            self.x += 5
 
     def repaint(self, screen, position):
         p = super().repaint(screen, position)
@@ -24,30 +61,27 @@ class Monster(GameObject):
 
     def move(self, angle, step):
         self.x += step * math.cos(angle)
-        if self.master.field.touch(self):
+        if self.field.touch(self):
             self.x -= step * math.cos(angle)
         self.y += step * math.sin(angle)
-        if self.master.field.touch(self):
+        if self.field.touch(self):
             self.y -= step * math.sin(angle)
 
     def near(self, position, step):
         x, y = self.x-position[0], self.y-position[1]
         distance = (x ** 2 + y ** 2) ** 0.5
         self.x -= x/distance * step
-        if self.master.field.touch(self):
+        if self.field.touch(self):
             self.x += x/distance * step
         self.y -= y/distance * step
-        if self.master.field.touch(self):
+        if self.field.touch(self):
             self.y += y/distance * step
 
 
 class Zombie(Monster):
     def __init__(self, master):
         super().__init__(master)
-        self.x, self.y = -100, 10
 
     def update(self):
-        x = self.x - self.player.x
-        y = self.y - self.player.y
         self.near((self.player.x, self.player.y), self.speed)
 
