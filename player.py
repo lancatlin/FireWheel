@@ -22,7 +22,7 @@ class Player(GameObject):
         self.gun = Gun(self)
         self.bullet = []
         self.shuting = False
-        self.speed = 3
+        self.speed = 2
         self.blood = 10
         self.change = [0, 0]
 
@@ -37,14 +37,16 @@ class Player(GameObject):
             b.repaint(screen, position)
 
     def update(self):
-        if self.delay(1000) and self.master.monster.touch(self):
+        super().update()
+        zombie = self.master.monster.touch(self)
+        if self.delay(100) and zombie:
             self.last_time = pygame.time.get_ticks()
             self.blood -= 1
+            self.near((zombie.x, zombie.y), -30)
             print(self.blood)
         for b in self.bullet:
             b.update()
         
-        self.change = [self.change[0] * 0.8, self.change[1] * 0.8]
         if self.iskey(K_w):
             self.change[1] += -self.speed
         if self.iskey(K_s):
@@ -56,9 +58,11 @@ class Player(GameObject):
         self.x += self.change[0]
         while self.master.field.touch(self):
             self.x -= self.change[0]*1
+            self.change[0] = 0
         self.y += self.change[1]
         while self.master.field.touch(self):
             self.y -= self.change[1]*1
+            self.change[1] = 0
 
         if self.shuting:
             self.shut(self.change)

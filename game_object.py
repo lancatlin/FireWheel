@@ -3,6 +3,7 @@ import pygame
 
 
 pygame.init()
+F = 0.88
 
 class GameObject:
     setting = json.load(open('setting.json', 'r'))
@@ -11,6 +12,7 @@ class GameObject:
         self.master = master
         self.x = 0
         self.y = 0
+        self.change = [0, 0]
         self.angle = 0
         self.color = []
         self.last_time = 0
@@ -20,7 +22,7 @@ class GameObject:
         int(self.y - position[1] + self.setting['wh'][1]/2)
 
     def update(self):
-        pass
+        self.change = [x*F for x in self.change]
 
     def kill(self):
         pass
@@ -32,3 +34,8 @@ class GameObject:
     
     def delay(self, time):
         return True if pygame.time.get_ticks() - self.last_time > time else False
+    def near(self, position, step):
+        x, y = self.x-position[0], self.y-position[1]
+        distance = (x ** 2 + y ** 2) ** 0.5
+        self.change[0] -= x/distance * step
+        self.change[1] -= y/distance * step

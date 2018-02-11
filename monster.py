@@ -34,9 +34,9 @@ class MonsterManager(GameObject):
             if z.touch(person) and z is not person:
                 if person in self.player.bullet:
                     z.kill()
-                return True
+                return z
         else:
-            return False
+            return None
 
     def update_live(self):
         p = self.player
@@ -72,9 +72,6 @@ class Monster(GameObject):
         p = super().repaint(screen, position)
         pygame.draw.circle(screen, self.color, p, self.r)
 
-    def update(self):
-        self.move(self.angle, self.speed)
-
     def move(self, angle, step):
         self.x += step * math.cos(angle)
         if self.field.touch(self):
@@ -95,7 +92,7 @@ class Monster(GameObject):
 
     def touch(self, person):
         distance = ((person.x - self.x)**2 + (person.y - self.y)**2) ** 0.5
-        return True if distance < self.r+person.r else False
+        return self if distance < self.r+person.r else None
 
 
 class Zombie(Monster):
