@@ -65,15 +65,16 @@ class Player(GameObject):
             self.change[1] = 0
 
         if self.shuting:
-            self.shut(self.change)
+            self.shut()
         self.gun.update()
         
-    def shut(self, change=(0, 0)):
+    def shut(self):
         if not self.shuting:
             self.shuting = True
             self.gun.shuting = True
         elif not self.iskey(K_SPACE):
-            self.bullet.append(Bullet(self, change))
+            self.bullet.append(Bullet(self))
+            self.move(self.gun.angle, -8)
             self.shuting = False
 
 

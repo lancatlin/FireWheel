@@ -14,26 +14,27 @@ class Bullet(GameObject):
         self.angle = master.gun.angle
         self.color = [255, 0, 255]
         self.range = 700
-        self.change = change
-        self.move(self.angle, 80)
+        self.change = self.master.change.copy()
+        self.x += 80 * math.cos(self.angle)
+        self.y += 80 * math.sin(self.angle)
+        self.move(self.angle, 50)
 
     def repaint(self, screen, position):
         xy = super().repaint(screen, position)
         pygame.draw.circle(screen, self.color, xy, self.r)
 
     def update(self):
+        super().update(0.95)
         self.x += self.change[0]
         self.y += self.change[1]
-        self.move(self.angle, 30)
         field = self.master.master.field
         monster = self.master.master.monster
-        if self.range < 0 or field.touch(self) or monster.touch(self):
+        self.range = (self.change[0]**2 + self.change[1]**2) ** 0.5
+        if self.range < 10 or field.touch(self) or monster.touch(self):
             self.kill()
 
     def move(self, angle, step):
-        self.x += step * math.cos(angle)
-        self.y += step * math.sin(angle)
-        self.range -= step
+        super().move(angle, step)
     
     def kill(self):
         self.master.bullet.remove(self)

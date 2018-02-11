@@ -1,5 +1,6 @@
 import json
 import pygame
+import math
 
 
 pygame.init()
@@ -21,8 +22,8 @@ class GameObject:
         return int(self.x - position[0] + self.setting['wh'][0]/2), \
         int(self.y - position[1] + self.setting['wh'][1]/2)
 
-    def update(self):
-        self.change = [x*F for x in self.change]
+    def update(self, f=F):
+        self.change = [x*f for x in self.change]
 
     def kill(self):
         pass
@@ -39,3 +40,7 @@ class GameObject:
         distance = (x ** 2 + y ** 2) ** 0.5
         self.change[0] -= x/distance * step
         self.change[1] -= y/distance * step
+
+    def move(self, angle, step):
+        self.change[0] += step * math.cos(angle)
+        self.change[1] += step * math.sin(angle)
