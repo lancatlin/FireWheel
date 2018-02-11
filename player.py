@@ -22,8 +22,9 @@ class Player(GameObject):
         self.gun = Gun(self)
         self.bullet = []
         self.shuting = False
-        self.speed = 10
+        self.speed = 3
         self.blood = 10
+        self.change = [0, 0]
 
     def repaint(self, screen, position):
         '''
@@ -43,24 +44,24 @@ class Player(GameObject):
         for b in self.bullet:
             b.update()
         
-        change = [0, 0]
+        self.change = [self.change[0] * 0.8, self.change[1] * 0.8]
         if self.iskey(K_w):
-            change[1] = -self.speed
+            self.change[1] += -self.speed
         if self.iskey(K_s):
-            change[1] = self.speed
+            self.change[1] += self.speed
         if self.iskey(K_d):
-            change[0] = self.speed
+            self.change[0] += self.speed
         if self.iskey(K_a):
-            change[0] = -self.speed
-        self.x += change[0]
+            self.change[0] += -self.speed
+        self.x += self.change[0]
         while self.master.field.touch(self):
-            self.x -= change[0]*1
-        self.y += change[1]
+            self.x -= self.change[0]*1
+        self.y += self.change[1]
         while self.master.field.touch(self):
-            self.y -= change[1]*1
+            self.y -= self.change[1]*1
 
         if self.shuting:
-            self.shut(change)
+            self.shut(self.change)
         self.gun.update()
         
     def shut(self, change=(0, 0)):
