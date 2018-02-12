@@ -17,6 +17,7 @@ class GameObject:
         self.angle = 0
         self.color = []
         self.last_time = 0
+        self.touchable = []
 
     def repaint(self, screen, position):
         return int(self.x - position[0] + self.setting['wh'][0]/2), \
@@ -44,3 +45,10 @@ class GameObject:
     def move(self, angle, step):
         self.change[0] += step * math.cos(angle)
         self.change[1] += step * math.sin(angle)
+
+    def be_touch(self):
+        for i in self.touchable:
+            if i.touch(self):
+                return i
+        else:
+             return None

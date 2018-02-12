@@ -19,8 +19,8 @@ class Main:
         print(type(self.screen))
         pygame.display.set_caption('FireWhell火輪手槍')
 
-        self.player = Player(self)
         self.field = wall.Field(self)
+        self.player = Player(self)
         self.monster = monster.MonsterManager(self)
         self.clock = pygame.time.Clock()
 

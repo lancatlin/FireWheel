@@ -25,6 +25,7 @@ class Player(GameObject):
         self.speed = 2
         self.blood = 10
         self.change = [0, 0]
+        self.touchable = []
 
     def repaint(self, screen, position):
         '''
@@ -35,6 +36,9 @@ class Player(GameObject):
         self.gun.repaint(screen, position)
         for b in self.bullet:
             b.repaint(screen, position)
+
+        blood_block = Rect(100, 50, 100*self.blood, 50)
+        pygame.draw.rect(screen, [255, 0, 0, 100], blood_block)
 
     def update(self):
         super().update()

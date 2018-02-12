@@ -11,9 +11,9 @@ z_capped = 50
 class MonsterManager(GameObject):
     def __init__(self, master):
         self.master = master
-        self.player = master.player
         self.last_time = 0
         self.zombies = []
+        self.player = master.player
         self.live_zombies = []
 
     def repaint(self, screen, position):
@@ -39,7 +39,7 @@ class MonsterManager(GameObject):
             return None
 
     def update_live(self):
-        p = self.player
+        p = self.master.player
         self.live_zombies = [z for z in self.zombies \
         if ((z.x-p.x)**2+(z.y-p.y)**2)**0.5 < 2000 ]
 
@@ -55,6 +55,7 @@ class Monster(GameObject):
         self.angle = 0
         self.color = [0, 255, 255]
         self.r = 30
+        self.live = True
         if color:
             self.color = color
         else:
@@ -65,8 +66,9 @@ class Monster(GameObject):
             w, h = self.setting['field_wh']
             self.x = random.randint(-w+1000, w-1000)
             self.y = random.randint(-h+1000, h-1000)
-        while self.field.touch(self, True):
-            self.x += 5
+        if self.field.touch(self, True):
+            self.live = False
+            print('kill')
 
     def repaint(self, screen, position):
         p = super().repaint(screen, position)
@@ -100,7 +102,10 @@ class Zombie(Monster):
         super().__init__(master)
 
     def update(self):
+        super().update()
         self.near((self.player.x, self.player.y), self.speed)
+        if not self.live:
+            self.kill()
 
     def kill(self):
         self.master.zombies.remove(self)
