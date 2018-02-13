@@ -6,6 +6,7 @@ import json
 from player import Player
 import wall
 import monster
+import stuff
 
 setting = json.load(open('setting.json', 'r'))
 bg = setting['bg']
@@ -22,6 +23,7 @@ class Main:
         self.field = wall.Field(self)
         self.player = Player(self)
         self.monster = monster.MonsterManager(self)
+        self.stuff = stuff.StuffManager(self)
         self.clock = pygame.time.Clock()
 
     def repaint(self, screen):
@@ -32,6 +34,7 @@ class Main:
         self.field.repaint(screen, position)
         self.player.repaint(screen, position)
         self.monster.repaint(screen, position)
+        self.stuff.repaint(screen, position)
         pygame.display.flip()
         pygame.display.update()
 
@@ -39,6 +42,7 @@ class Main:
         self.player.update()
         self.field.update()
         self.monster.update()
+        self.stuff.update()
 
     def gameover(self, screen):
         screen.fill(bg) 
@@ -46,6 +50,7 @@ class Main:
         self.field.repaint(screen, position)
         self.player.repaint(screen, position)
         self.monster.repaint(screen, position)
+        self.stuff.repaint(screen, position)
         f = pygame.font.Font('data/freesansbold.ttf', 90)
         text1 = f.render('Game Over', True, [255,255,255])
         text2 = f.render('Score: %s' % self.player.score, True, self.player.color)
