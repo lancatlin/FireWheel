@@ -18,12 +18,13 @@ class Player(GameObject):
         self.x = -200
         self.y = 100
         self.r = 30
-        self.color = [255, 0, 0]
+        self.color = [50, 200, 200]
         self.gun = Gun(self)
         self.bullet = []
         self.shuting = False
         self.speed = 2
         self.blood = 10
+        self.score = 0
         self.a = [0, 0]
         self.touchable = []
 
@@ -37,8 +38,10 @@ class Player(GameObject):
         for b in self.bullet:
             b.repaint(screen, position)
 
-        blood_block = Rect(100, 50, 100*self.blood, 50)
-        pygame.draw.rect(screen, [255, 0, 0, 100], blood_block)
+        blood_block = Rect(100, 50, 1*self.score, 30)
+        pygame.draw.rect(screen, [0, 255, 255], blood_block)
+        for b in range(self.blood):
+            pygame.draw.rect(screen, [255,0,0], (x-70+14*b, y-90, 10, 10))
 
     def update(self):
         zombie = self.master.monster.touch(self)
@@ -69,7 +72,7 @@ class Player(GameObject):
             self.gun.shuting = True
         elif not self.iskey(K_SPACE):
             self.bullet.append(Bullet(self))
-            self.move(self.gun.angle, -8)
+            self.move(self.gun.angle, -6)
             self.shuting = False
 
 

@@ -40,7 +40,27 @@ class Main:
         self.field.update()
         self.monster.update()
 
+    def gameover(self, screen):
+        screen.fill(bg) 
+        position = (self.player.x, self.player.y)
+        self.field.repaint(screen, position)
+        self.player.repaint(screen, position)
+        self.monster.repaint(screen, position)
+        f = pygame.font.Font('data/freesansbold.ttf', 90)
+        text1 = f.render('Game Over', True, [255,255,255])
+        text2 = f.render('Score: %s' % self.player.score, True, self.player.color)
+        rect1 = text1.get_rect()
+        rect2 = text2.get_rect()
+        rect1.center = [wh[0]/2, wh[1]/2 - 100]
+        rect2.center = [wh[0]/2, wh[1]/2 + 100]
+        screen.blit(text1, rect1)
+        screen.blit(text2, rect2)
+
+        pygame.display.flip()
+        pygame.display.update()
+
     def begin(self):
+        play = True
         while True:
             for e in pygame.event.get():
                 if e.type == QUIT:
@@ -60,9 +80,13 @@ class Main:
                     
                     elif e.key == K_SPACE:
                         self.player.shut()
-                
-            self.update()
-            self.repaint(self.screen)
+            if not play:
+                self.gameover(self.screen)    
+            elif self.player.blood == 0:
+                play = False
+            else:
+                self.update()
+                self.repaint(self.screen)
             self.clock.tick(30)
 
 

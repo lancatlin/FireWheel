@@ -12,7 +12,7 @@ class Bullet(GameObject):
         self.y = master.y
         self.r = 7
         self.angle = master.gun.angle
-        self.color = [255, 0, 255]
+        self.color = master.color
         self.range = 700
         self.a = self.master.a.copy()
         self.x += 80 * math.cos(self.angle)

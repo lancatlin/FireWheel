@@ -34,6 +34,7 @@ class MonsterManager(GameObject):
             if z.touch(person) and z is not person:
                 if person in self.player.bullet:
                     z.kill()
+                    self.player.score += 5
                 return z
         else:
             return None
