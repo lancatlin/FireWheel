@@ -94,7 +94,7 @@ class Gun(GameObject):
     def update(self):
         self.x = self.master.x
         self.y = self.master.y
-        self.angle += self.turn
+        self.angle = self.master.angle + self.angle + self.turn
         if self.shuting:
             self.shut()
 
@@ -108,7 +108,7 @@ class Gun(GameObject):
             self.turn *= -1
             self.last_time = pygame.time.get_ticks()
         #如果按鍵已放開
-        elif not Gun.iskey(K_SPACE):
+        elif not self.master.shuting:
             self.shuting = False
             self.turn *= 4
             self.last_time = 0

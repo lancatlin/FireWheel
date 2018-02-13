@@ -7,18 +7,20 @@ from game_object import GameObject
 from player import Gun
 
 
-z_capped = 50
+z_capped = 0
+s_capped = 30
 
 class MonsterManager(GameObject):
     def __init__(self, master):
         self.master = master
         self.last_time = 0
-        self.zombies = []
         self.player = master.player
-        self.live_zombies = []
+        self.zombies = []
+        self.snipers = []
+        self.live_monsters = []
 
     def repaint(self, screen, position):
-        for z in self.live_zombies:
+        for z in self.live_monsters:
             z.repaint(screen, position)
 
     def update(self):
@@ -27,11 +29,13 @@ class MonsterManager(GameObject):
             self.last_time = pygame.time.get_ticks()
         elif len(self.zombies) < z_capped:
             self.zombies.append(Zombie(self))
-        for z in self.live_zombies:
+        elif len(self.snipers) < s_capped:
+            self.snipers.append(Sniper(self))
+        for z in self.live_monsters:
             z.update()
 
     def touch(self, person):
-        for z in self.live_zombies:
+        for z in self.live_monsters:
             if z.touch(person) and z is not person:
                 if person in self.player.bullet:
                     z.kill()
@@ -42,7 +46,7 @@ class MonsterManager(GameObject):
 
     def update_live(self):
         p = self.master.player
-        self.live_zombies = [z for z in self.zombies \
+        self.live_monsters = [z for z in self.zombies+self.snipers \
         if ((z.x-p.x)**2+(z.y-p.y)**2)**0.5 < 2000 ]
 
 
@@ -109,13 +113,32 @@ class Zombie(Monster):
 class Sniper(Monster):
     def __init__(self, master):
         super().__init__(master)
+        self.gun = Gun(self)
+        self.gun.turn = 0
         self.angle = 0
     
     def repaint(self, screen, position):
-        x, y = super().repaint(screen, position)
-        xy = (int(x + math.cos(self.angle) * 80), int(y + math.sin(self.angle) * 80))
-        pygame.draw.circle(screen, self.color, xy, 10)
+        super().repaint(screen, position)
+        self.gun.repaint(screen, position)
 
     def update(self):
-        pass
+        x, y = self.x - self.player.x, self.y - self.player.y
+        self.angle = math.atan(y/x)
+        if x > 0:
+            self.angle *= -1
+            self.angle = 135 - self.angle
+        d = (x**2 + y**2) ** 0.5
+        if d > 600:
+            self.near((self.player.x, self.player.y), self.speed)
+        elif d < 400:
+            self.near((self.player.x, self.player.y), -self.speed)
+        else:
+            pass
+        super().update(lambda :self.field.touch(self) or self.master.touch(self))
+        self.gun.angle = 0
+        self.gun.update()
+
+    def kill(self):
+        self.master.snipers.remove(self)
+        self.master.update_live()
 
