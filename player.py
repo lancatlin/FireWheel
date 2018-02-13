@@ -4,7 +4,7 @@ import json
 import math
 
 from game_object import GameObject
-from bullet import Bullet
+from bullet import PlayerBullet
 
 
 wh = GameObject.setting['wh']
@@ -71,7 +71,7 @@ class Player(GameObject):
             self.shuting = True
             self.gun.shuting = True
         elif not self.iskey(K_SPACE):
-            self.bullet.append(Bullet(self))
+            self.bullet.append(PlayerBullet(self))
             self.move(self.gun.angle, -6)
             self.shuting = False
 
@@ -88,13 +88,15 @@ class Gun(GameObject):
 
     def repaint(self, screen, position):
         x, y = super().repaint(screen, position)
-        xy = (int(x + math.cos(self.angle) * distance), int(y + math.sin(self.angle) * distance))
+        xy = (int(x + math.cos(self.angle+self.master.angle) * distance), int(y + math.sin(self.angle+self.master.angle) * distance))
         pygame.draw.circle(screen, self.master.color, xy, 10)
 
     def update(self):
         self.x = self.master.x
         self.y = self.master.y
-        self.angle = self.master.angle + self.angle + self.turn
+        self.angle += self.turn
+        if self.angle > 270:
+            self.angle-270
         if self.shuting:
             self.shut()
 

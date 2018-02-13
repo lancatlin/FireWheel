@@ -11,7 +11,7 @@ class Bullet(GameObject):
         self.x = master.x
         self.y = master.y
         self.r = 7
-        self.angle = master.gun.angle
+        self.angle = master.gun.angle + master.angle
         self.color = master.color
         self.range = 700
         self.a = self.master.a.copy()
@@ -23,16 +23,33 @@ class Bullet(GameObject):
         xy = super().repaint(screen, position)
         pygame.draw.circle(screen, self.color, xy, self.r)
 
-    def update(self):
+    def update(self, touch):
         super().update(f = 0.95)
-        field = self.master.master.field
-        monster = self.master.master.monster
         speed = (self.a[0]**2 + self.a[1]**2) ** 0.5
-        if speed < 10 or field.touch(self) or monster.touch(self):
+        if speed < 10 or touch(): 
             self.kill()
 
     def move(self, angle, step):
         super().move(angle, step)
     
     def kill(self):
+        pass
+
+
+class PlayerBullet(Bullet):
+    def update(self):
+        f = lambda:self.master.master.field.touch(self) or self.master.master.monster.touch(self)
+        super().update(f)
+
+    def kill(self):
         self.master.bullet.remove(self)
+
+
+class SniperBullet(Bullet):
+    def update(self):
+        f = lambda:self.master.field.touch(self)
+        super().update(f)
+
+    def kill(self):
+        self.master.master.bullet.remove(self)
+        
