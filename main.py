@@ -52,7 +52,7 @@ class Main:
         self.monster.repaint(screen, position)
         self.stuff.repaint(screen, position)
         f = pygame.font.Font('data/freesansbold.ttf', 90)
-        text1 = f.render('Game Over', True, [255,255,255])
+        text1 = f.render('Game Over', True, [255,255,100])
         text2 = f.render('Score: %s' % self.player.score, True, self.player.color)
         rect1 = text1.get_rect()
         rect2 = text2.get_rect()

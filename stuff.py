@@ -6,7 +6,7 @@ from game_object import GameObject
 
 
 h_capped = 70
-s_capped = 150
+s_capped = 250
 
 class StuffManager(GameObject):
     def __init__(self, master):

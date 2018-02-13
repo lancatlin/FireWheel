@@ -4,6 +4,7 @@ import math
 import random
 
 from game_object import GameObject
+from player import Gun
 
 
 z_capped = 50
@@ -95,9 +96,6 @@ class Monster(GameObject):
 
 
 class Zombie(Monster):
-    def __init__(self, master):
-        super().__init__(master)
-
     def update(self):
         self.near((self.player.x, self.player.y), self.speed)
         super().update(lambda :self.field.touch(self) or self.master.touch(self))
@@ -107,4 +105,17 @@ class Zombie(Monster):
     def kill(self):
         self.master.zombies.remove(self)
         self.master.update_live()
+
+class Sniper(Monster):
+    def __init__(self, master):
+        super().__init__(master)
+        self.angle = 0
+    
+    def repaint(self, screen, position):
+        x, y = super().repaint(screen, position)
+        xy = (int(x + math.cos(self.angle) * 80), int(y + math.sin(self.angle) * 80))
+        pygame.draw.circle(screen, self.color, xy, 10)
+
+    def update(self):
+        pass
 

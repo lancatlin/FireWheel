@@ -38,8 +38,8 @@ class Player(GameObject):
         for b in self.bullet:
             b.repaint(screen, position)
 
-        blood_block = Rect(100, 50, 1*self.score, 30)
-        pygame.draw.rect(screen, [0, 255, 255], blood_block)
+        score_block = Rect(100, 50, 10*(self.score % 100), 30)
+        pygame.draw.rect(screen, [0, 255, 255], score_block)
         for b in range(self.blood):
             pygame.draw.rect(screen, [255,0,0], (x-70+14*b, y-90, 10, 10))
 
