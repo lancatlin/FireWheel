@@ -51,7 +51,7 @@ class Monster(GameObject):
         super().__init__(master)
         self.player = master.player
         self.field = self.master.master.field
-        self.speed = 8
+        self.speed = 1
         self.angle = 0
         self.color = [0, 255, 255]
         self.r = 30
@@ -85,12 +85,8 @@ class Monster(GameObject):
     def near(self, position, step):
         x, y = self.x-position[0], self.y-position[1]
         distance = (x ** 2 + y ** 2) ** 0.5
-        self.x -= x/distance * step
-        if self.field.touch(self) or self.master.touch(self):
-            self.x += x/distance * step
-        self.y -= y/distance * step
-        if self.field.touch(self) or self.master.touch(self):
-            self.y += y/distance * step
+        self.a[0] -= x/distance * step
+        self.a[1] -= y/distance * step
 
     def touch(self, person):
         distance = ((person.x - self.x)**2 + (person.y - self.y)**2) ** 0.5
@@ -102,8 +98,8 @@ class Zombie(Monster):
         super().__init__(master)
 
     def update(self):
-        super().update()
         self.near((self.player.x, self.player.y), self.speed)
+        super().update(lambda :self.field.touch(self) or self.master.touch(self))
         if not self.live:
             self.kill()
 

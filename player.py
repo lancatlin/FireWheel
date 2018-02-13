@@ -24,7 +24,7 @@ class Player(GameObject):
         self.shuting = False
         self.speed = 2
         self.blood = 10
-        self.change = [0, 0]
+        self.a = [0, 0]
         self.touchable = []
 
     def repaint(self, screen, position):
@@ -41,7 +41,6 @@ class Player(GameObject):
         pygame.draw.rect(screen, [255, 0, 0, 100], blood_block)
 
     def update(self):
-        super().update()
         zombie = self.master.monster.touch(self)
         if self.delay(100) and zombie:
             self.last_time = pygame.time.get_ticks()
@@ -52,22 +51,14 @@ class Player(GameObject):
             b.update()
         
         if self.iskey(K_w):
-            self.change[1] += -self.speed
+            self.a[1] += -self.speed
         if self.iskey(K_s):
-            self.change[1] += self.speed
+            self.a[1] += self.speed
         if self.iskey(K_d):
-            self.change[0] += self.speed
+            self.a[0] += self.speed
         if self.iskey(K_a):
-            self.change[0] += -self.speed
-        self.x += self.change[0]
-        while self.master.field.touch(self):
-            self.x -= self.change[0]*1
-            self.change[0] = 0
-        self.y += self.change[1]
-        while self.master.field.touch(self):
-            self.y -= self.change[1]*1
-            self.change[1] = 0
-
+            self.a[0] += -self.speed
+        super().update(lambda :self.master.field.touch(self))
         if self.shuting:
             self.shut()
         self.gun.update()
@@ -88,7 +79,7 @@ class Gun(GameObject):
         super().__init__(master)
         self.x = self.master.x
         self.y = self.master.y
-        self.change = speed
+        self.turn = speed
         self.shuting = False
         self.last_time = 0
 
@@ -100,23 +91,23 @@ class Gun(GameObject):
     def update(self):
         self.x = self.master.x
         self.y = self.master.y
-        self.angle += self.change
+        self.angle += self.turn
         if self.shuting:
             self.shut()
 
     def shut(self):
         #如果第一次按下
         if self.last_time == 0:
-            self.change *= -0.25
+            self.turn *= -0.25
             self.last_time = pygame.time.get_ticks()
         #如果超過一秒，換方向
         elif pygame.time.get_ticks() - self.last_time > 500:
-            self.change *= -1
+            self.turn *= -1
             self.last_time = pygame.time.get_ticks()
         #如果按鍵已放開
         elif not Gun.iskey(K_SPACE):
             self.shuting = False
-            self.change *= 4
+            self.turn *= 4
             self.last_time = 0
 
 

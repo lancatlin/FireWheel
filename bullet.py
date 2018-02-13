@@ -6,7 +6,7 @@ from game_object import GameObject
 
 
 class Bullet(GameObject):
-    def __init__(self, master, change=(0,0)):
+    def __init__(self, master, a=(0,0)):
         super().__init__(master)
         self.x = master.x
         self.y = master.y
@@ -14,7 +14,7 @@ class Bullet(GameObject):
         self.angle = master.gun.angle
         self.color = [255, 0, 255]
         self.range = 700
-        self.change = self.master.change.copy()
+        self.a = self.master.a.copy()
         self.x += 80 * math.cos(self.angle)
         self.y += 80 * math.sin(self.angle)
         self.move(self.angle, 50)
@@ -24,13 +24,11 @@ class Bullet(GameObject):
         pygame.draw.circle(screen, self.color, xy, self.r)
 
     def update(self):
-        super().update(0.95)
-        self.x += self.change[0]
-        self.y += self.change[1]
+        super().update(f = 0.95)
         field = self.master.master.field
         monster = self.master.master.monster
-        self.range = (self.change[0]**2 + self.change[1]**2) ** 0.5
-        if self.range < 10 or field.touch(self) or monster.touch(self):
+        speed = (self.a[0]**2 + self.a[1]**2) ** 0.5
+        if speed < 10 or field.touch(self) or monster.touch(self):
             self.kill()
 
     def move(self, angle, step):
