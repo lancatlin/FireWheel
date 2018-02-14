@@ -5,8 +5,8 @@ import random
 from game_object import *
 
 
-h_capped = 70
-s_capped = 250
+h_capped = 15
+s_capped = 60
 
 class StuffManager(Manager):
     def __init__(self, master):
@@ -15,23 +15,19 @@ class StuffManager(Manager):
         self.stars = []
 
     def repaint(self, screen, position):
-        for h in self.live:
+        for h in self.stars+self.hearts:
             h.repaint(screen, position)
 
     def update(self):
-        if self.delay(1000):
+        if self.delay(100):
             self.update_live()
-            super().update(self.hearts+self.stars)
             self.last_time = pygame.time.get_ticks()
-        elif len(self.hearts) < h_capped:
+        while len(self.hearts) < h_capped:
             self.hearts.append(Heart(self))
-        elif len(self.stars) < s_capped:
+        while len(self.stars) < s_capped:
             self.stars.append(Star(self))
-        for a in self.live:
+        for a in self.hearts+self.stars:
             a.update()
-
-    def update_live(self):
-        super().update_live(self.hearts+self.stars)
 
 
 class Stuff(GameObject):
@@ -39,8 +35,9 @@ class Stuff(GameObject):
         super().__init__(master)
         self.r = 10
         w, h = self.setting['field_wh']
-        self.x = random.randint(-w+1000, w-1000)
-        self.y = random.randint(-h+1000, h-1000)
+        p = self.master.master.player
+        self.x = random.uniform(min(p.x+1500, w), max(p.x-1500, -w))
+        self.y = random.uniform(min(p.y+1500, h), max(p.y-1500, -h))
         self.player = self.master.master.player
         if self.master.master.field.touch(self, True):
             self.live = False
@@ -49,7 +46,10 @@ class Stuff(GameObject):
 
     def repaint(self, screen, position):
         p = super().repaint(screen, position)
-        pygame.draw.circle(screen, self.color, p, self.r)
+        if abs(p[0]) > 1500 or abs(p[1]) > 1500:
+            self.live = False
+        else:
+            pygame.draw.circle(screen, self.color, p, self.r)
 
     def update(self):
         if not self.live:
@@ -57,6 +57,8 @@ class Stuff(GameObject):
         elif self.touch():
             self.plus()
             self.kill()
+        if self.master.master.field.touch(self, True):
+            self.live = False
 
     def touch(self):
         d = ((self.x-self.player.x)**2 + (self.y-self.player.y)**2)**0.5

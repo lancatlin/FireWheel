@@ -58,6 +58,7 @@ class Monster(GameObject):
         self.color = [0, 255, 255]
         self.r = 30
         self.live = True
+        self.range = lambda: 600 + self.player.level * 50 > self.distance(self)
         if color:
             self.color = color
         else:
@@ -100,7 +101,7 @@ class Monster(GameObject):
 
 class Zombie(Monster):
     def update(self):
-        if self.distance(self.player) < 400 + self.player.level * 50:
+        if self.range():
             self.near((self.player.x, self.player.y), self.speed)
         super().update(lambda :self.field.touch(self) or self.master.touch(self))
         if not self.live:
@@ -130,14 +131,15 @@ class Sniper(Monster):
             self.angle += math.pi
             pass
         d = (x**2 + y**2) ** 0.5
-        if d > 600:
-            self.near((self.player.x, self.player.y), self.speed)
-        elif pygame.time.get_ticks()-self.last_time > 900:
-            self.master.bullet.append(SniperBullet(self, 20))
-            self.master.update_live()
-            self.last_time = pygame.time.get_ticks()
-        elif d < 400:
-            self.near((self.player.x, self.player.y), -self.speed)
+        if self.range():
+            if d > 600:
+                self.near((self.player.x, self.player.y), self.speed)
+            elif pygame.time.get_ticks()-self.last_time > 900:
+                self.master.bullet.append(SniperBullet(self, 20))
+                self.master.update_live()
+                self.last_time = pygame.time.get_ticks()
+            elif d < 400:
+                self.near((self.player.x, self.player.y), -self.speed)
         super().update(lambda :self.field.touch(self) or self.master.touch(self))
         self.gun.update()
 
