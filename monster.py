@@ -8,8 +8,8 @@ from player import Gun
 from bullet import SniperBullet
 
 
-z_capped = 30
-s_capped = 20
+z_capped = 20
+s_capped = 15
 
 class MonsterManager(Manager):
     def __init__(self, master):
@@ -91,13 +91,17 @@ class Monster(GameObject):
         self.a[1] -= y/distance * step
 
     def touch(self, person):
-        distance = ((person.x - self.x)**2 + (person.y - self.y)**2) ** 0.5
-        return self if distance < self.r+person.r else None
+        d = self.distance(person)
+        return self if d < self.r+person.r else None
+
+    def distance(self, person):
+        return ((person.x - self.x)**2 + (person.y - self.y)**2) ** 0.5
 
 
 class Zombie(Monster):
     def update(self):
-        self.near((self.player.x, self.player.y), self.speed)
+        if self.distance(self.player) < 400 + self.player.level * 50:
+            self.near((self.player.x, self.player.y), self.speed)
         super().update(lambda :self.field.touch(self) or self.master.touch(self))
         if not self.live:
             self.kill()
@@ -129,7 +133,8 @@ class Sniper(Monster):
         if d > 600:
             self.near((self.player.x, self.player.y), self.speed)
         elif pygame.time.get_ticks()-self.last_time > 900:
-            self.master.bullet.append(SniperBullet(self, 40))
+            self.master.bullet.append(SniperBullet(self, 20))
+            self.master.update_live()
             self.last_time = pygame.time.get_ticks()
         elif d < 400:
             self.near((self.player.x, self.player.y), -self.speed)

@@ -2,44 +2,36 @@ import pygame
 from pygame.locals import *
 import random
 
-from game_object import GameObject
+from game_object import *
 
 
 h_capped = 70
 s_capped = 250
 
-class StuffManager(GameObject):
+class StuffManager(Manager):
     def __init__(self, master):
-        self.master = master
+        super().__init__(master)
         self.hearts = []
         self.stars = []
-        self.live_hearts = []
-        self.live_stars = []
-        self.last_time = 0
 
     def repaint(self, screen, position):
-        for h in self.live_hearts:
+        for h in self.live:
             h.repaint(screen, position)
-        for s in self.live_stars:
-            s.repaint(screen, position)
 
     def update(self):
         if self.delay(1000):
             self.update_live()
+            super().update(self.hearts+self.stars)
             self.last_time = pygame.time.get_ticks()
         elif len(self.hearts) < h_capped:
             self.hearts.append(Heart(self))
         elif len(self.stars) < s_capped:
             self.stars.append(Star(self))
-        for a in self.live_hearts + self.live_stars:
+        for a in self.live:
             a.update()
 
     def update_live(self):
-        p = self.master.player
-        self.live_hearts = [h for h in self.hearts \
-        if ((h.x-p.x)**2+(h.y-p.y)**2)**0.5 < 2000 ]
-        self.live_stars = [s for s in self.stars \
-        if ((s.x-p.x)**2+(s.y-p.y)**2)**0.5 < 2000 ]
+        super().update_live(self.hearts+self.stars)
 
 
 class Stuff(GameObject):

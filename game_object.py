@@ -69,7 +69,7 @@ class GameObject:
 
 
 class Manager(GameObject):
-    def __init__(self):
+    def __init__(self, master):
         self.master = master
         self.player = master.player
         self.last_time = 0
