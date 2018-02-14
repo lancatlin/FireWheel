@@ -49,6 +49,10 @@ class PlayerBullet(Bullet):
 
 
 class SniperBullet(Bullet):
+    def __init__(self, master, speed=30):
+        super().__init__(master, speed)
+        self.score = 0
+
     def update(self):
         f = lambda:self.master.field.touch(self)
         super().update(f)

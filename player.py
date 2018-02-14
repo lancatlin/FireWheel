@@ -50,7 +50,7 @@ class Player(GameObject):
 
     def update(self):
         self.level = self.score // 100
-        zombie = self.master.monster.touch(self)
+        zombie = self.master.monster.touch(self, True)
         if self.delay(500) and zombie:
             self.last_time = pygame.time.get_ticks()
             self.blood -= 1

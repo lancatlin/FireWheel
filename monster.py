@@ -33,13 +33,14 @@ class MonsterManager(Manager):
         for z in self.live:
             z.update()
 
-    def touch(self, person):
-        for z in self.live + self.bullet:
-            if z.touch(person) and person is not z:
+    def touch(self, person, mode=True):
+        for z in self.live + (self.bullet if mode else []):
+            if z.touch(person) and person is not z :
                 if person in self.player.bullet:
                     z.kill()
-                    self.player.score += 5
-                return z
+                    self.player.score += z.score
+                if mode or z not in self.bullet:
+                    return z
         else:
             return None
 
@@ -56,6 +57,7 @@ class Monster(GameObject):
         self.speed = 1
         self.angle = 0
         self.color = [0, 255, 255]
+        self.score = 5
         self.r = 30
         self.live = True
         self.range = lambda: 600 + self.player.level * 50 > self.distance(self)
@@ -107,7 +109,7 @@ class Zombie(Monster):
     def update(self):
         if self.range():
             self.near((self.player.x, self.player.y), self.speed)
-        super().update(lambda :self.field.touch(self) or self.master.touch(self))
+        super().update(lambda :self.field.touch(self) or self.master.touch(self, False))
         if not self.live:
             self.kill()
 
