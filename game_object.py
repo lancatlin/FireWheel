@@ -1,6 +1,7 @@
 import json
 import pygame
 import math
+import random
 
 
 pygame.init()
@@ -61,3 +62,36 @@ class GameObject:
                 return i
         else:
              return None
+
+    def touch(self, person):
+        distance = ((person.x - self.x)**2 + (person.y - self.y)**2) ** 0.5
+        return self if distance < self.r+person.r else None
+
+
+class Manager(GameObject):
+    def __init__(self):
+        self.master = master
+        self.player = master.player
+        self.last_time = 0
+        self.live = []
+
+    def repaint(self, screen, position):
+        for i in self.live:
+            i.repaint(screen, position)
+
+    def update_live(self, be_live = []):
+        p = self.player
+        self.live = [i for i in be_live if ((i.x-p.x)**2+(i.y-p.y)**2) ** 0.5 < 2000]
+
+    def touch(self, person):
+        for i in self.live:
+            if i.touch(person) and person is not z:
+                return i
+        else:
+             return None
+
+    def update(self, be_kill=[]):
+        i = random.choice(be_kill)
+        if i not in self.live:
+            i.kill()
+

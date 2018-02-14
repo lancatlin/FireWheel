@@ -5,8 +5,10 @@ import math
 from game_object import GameObject
 
 
+distance = GameObject.setting['distance']
+
 class Bullet(GameObject):
-    def __init__(self, master, a=(0,0)):
+    def __init__(self, master, speed=50):
         super().__init__(master)
         self.x = master.x
         self.y = master.y
@@ -15,9 +17,9 @@ class Bullet(GameObject):
         self.color = master.color
         self.range = 700
         self.a = self.master.a.copy()
-        self.x += 80 * math.cos(self.angle)
-        self.y += 80 * math.sin(self.angle)
-        self.move(self.angle, 50)
+        self.x += (distance-speed) * math.cos(self.angle)
+        self.y += (distance-speed) * math.sin(self.angle)
+        self.move(self.angle, speed)
 
     def repaint(self, screen, position):
         xy = super().repaint(screen, position)
@@ -29,9 +31,6 @@ class Bullet(GameObject):
         if speed < 10 or touch(): 
             self.kill()
 
-    def move(self, angle, step):
-        super().move(angle, step)
-    
     def kill(self):
         pass
 
@@ -52,4 +51,5 @@ class SniperBullet(Bullet):
 
     def kill(self):
         self.master.master.bullet.remove(self)
+        self.master.master.update_live()
         

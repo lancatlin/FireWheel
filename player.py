@@ -50,6 +50,8 @@ class Player(GameObject):
             self.blood -= 1
             self.near((zombie.x, zombie.y), -30)
             print(self.blood)
+            if zombie in self.master.monster.bullet:
+                zombie.kill()
         for b in self.bullet:
             b.update()
         

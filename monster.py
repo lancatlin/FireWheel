@@ -3,15 +3,15 @@ from pygame.locals import *
 import math
 import random
 
-from game_object import GameObject
+from game_object import *
 from player import Gun
 from bullet import SniperBullet
 
 
-z_capped = 0
-s_capped = 30
+z_capped = 30
+s_capped = 20
 
-class MonsterManager(GameObject):
+class MonsterManager(Manager):
     def __init__(self, master):
         self.master = master
         self.last_time = 0
@@ -19,25 +19,22 @@ class MonsterManager(GameObject):
         self.zombies = []
         self.snipers = []
         self.bullet = []
-        self.live_monsters = []
-
-    def repaint(self, screen, position):
-        for z in self.live_monsters+self.bullet:
-            z.repaint(screen, position)
+        self.live = []
 
     def update(self):
         if pygame.time.get_ticks() - self.last_time > 1000:
             self.update_live()
+            super().update(self.zombies+self.snipers)
             self.last_time = pygame.time.get_ticks()
         elif len(self.zombies) < z_capped:
             self.zombies.append(Zombie(self))
         elif len(self.snipers) < s_capped:
             self.snipers.append(Sniper(self))
-        for z in self.live_monsters+self.bullet:
+        for z in self.live:
             z.update()
 
     def touch(self, person):
-        for z in self.live_monsters:
+        for z in self.live + self.bullet:
             if z.touch(person) and person is not z:
                 if person in self.player.bullet:
                     z.kill()
@@ -47,10 +44,7 @@ class MonsterManager(GameObject):
             return None
 
     def update_live(self):
-        p = self.master.player
-        self.live_monsters = [z for z in self.zombies+self.snipers \
-        if ((z.x-p.x)**2+(z.y-p.y)**2)**0.5 < 2000 ]
-
+        super().update_live(self.zombies+self.snipers+self.bullet)
 
 
 class Monster(GameObject):
@@ -115,9 +109,11 @@ class Zombie(Monster):
 class Sniper(Monster):
     def __init__(self, master):
         super().__init__(master)
+        self.speed = 2
         self.gun = Gun(self)
         self.angle = 0
         self.shuting = True
+        self.gun.shuting = True
     
     def repaint(self, screen, position):
         super().repaint(screen, position)
@@ -127,19 +123,17 @@ class Sniper(Monster):
         x, y = self.x - self.player.x, self.y - self.player.y
         self.angle = math.atan(y/x)
         if x > 0:
-            self.angle += 135
+            self.angle += math.pi
             pass
         d = (x**2 + y**2) ** 0.5
         if d > 600:
             self.near((self.player.x, self.player.y), self.speed)
+        elif pygame.time.get_ticks()-self.last_time > 900:
+            self.master.bullet.append(SniperBullet(self, 40))
+            self.last_time = pygame.time.get_ticks()
         elif d < 400:
             self.near((self.player.x, self.player.y), -self.speed)
-        elif pygame.time.get_ticks()-self.last_time > 1000:
-            self.master.bullet.append(SniperBullet(self))
-            self.last_time = pygame.time.get_ticks()
         super().update(lambda :self.field.touch(self) or self.master.touch(self))
-        self.shuting = True
-        self.gun.shuting = True
         self.gun.update()
 
     def kill(self):
