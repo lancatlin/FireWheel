@@ -8,8 +8,8 @@ from player import Gun
 from bullet import SniperBullet
 
 
-z_capped = 20
-s_capped = 15
+z_capped = lambda x:20 + x*2
+s_capped = lambda x:15 + x*2
 
 class MonsterManager(Manager):
     def __init__(self, master):
@@ -26,9 +26,9 @@ class MonsterManager(Manager):
             self.update_live()
             super().update(self.zombies+self.snipers)
             self.last_time = pygame.time.get_ticks()
-        elif len(self.zombies) < z_capped:
+        elif len(self.zombies) < z_capped(self.player.level):
             self.zombies.append(Zombie(self))
-        elif len(self.snipers) < s_capped:
+        elif len(self.snipers) < s_capped(self.player.level):
             self.snipers.append(Sniper(self))
         for z in self.live:
             z.update()
@@ -100,6 +100,10 @@ class Monster(GameObject):
 
 
 class Zombie(Monster):
+    def __init__(self, master):
+        super().__init__(master)
+        self.speed = 0.75
+
     def update(self):
         if self.range():
             self.near((self.player.x, self.player.y), self.speed)
@@ -114,7 +118,7 @@ class Zombie(Monster):
 class Sniper(Monster):
     def __init__(self, master):
         super().__init__(master)
-        self.speed = 2
+        self.speed = 1.5
         self.gun = Gun(self)
         self.angle = 0
         self.shuting = True
@@ -134,7 +138,7 @@ class Sniper(Monster):
         if self.range():
             if d > 600:
                 self.near((self.player.x, self.player.y), self.speed)
-            elif pygame.time.get_ticks()-self.last_time > 900:
+            elif pygame.time.get_ticks()-self.last_time > 1300:
                 self.master.bullet.append(SniperBullet(self, 20))
                 self.master.update_live()
                 self.last_time = pygame.time.get_ticks()

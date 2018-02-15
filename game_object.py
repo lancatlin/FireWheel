@@ -25,16 +25,14 @@ class GameObject:
         int(self.y - position[1] + self.setting['wh'][1]/2)
 
     def update(self,touch=lambda:None, f=F):
+        if touch():
+            self.live = False
         self.x += self.a[0]
         if touch():
-            if self.a[0] == 0:
-                die = True
             self.x -= self.a[0]
             self.a[0] = 0
         self.y += self.a[1]
         if touch():
-            if self.a[1] == 0 and die:
-                self.kill()
             self.y -= self.a[1]
             self.a[1] = 0
 
@@ -85,7 +83,7 @@ class Manager(GameObject):
 
     def update_live(self, be_live = []):
         p = self.player
-        self.live = [i for i in be_live if ((i.x-p.x)**2+(i.y-p.y)**2) ** 0.5 < 1200]
+        self.live = [i for i in be_live if ((i.x-p.x)**2+(i.y-p.y)**2) ** 0.5 < 2000]
 
     def touch(self, person):
         for i in self.live:
