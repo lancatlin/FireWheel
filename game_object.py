@@ -69,6 +69,12 @@ class GameObject:
         distance = ((person.x - self.x)**2 + (person.y - self.y)**2) ** 0.5
         return self if distance < self.r+person.r else None
 
+    @staticmethod
+    def map(ah, al, bh, bl, c):
+        a = ah - al
+        b = bh - bl
+        return (c - al) / a * b + bl
+
 
 class Manager(GameObject):
     def __init__(self, master):

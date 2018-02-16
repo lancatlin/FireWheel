@@ -25,6 +25,7 @@ class Player(GameObject):
         self.speed = 2
         self.blood = 10
         self.score = 0
+        self.level_factor = 10
         self.level = 0
         self.a = [0, 0]
         self.touchable = []
@@ -39,7 +40,8 @@ class Player(GameObject):
         for b in self.bullet:
             b.repaint(screen, position)
 
-        score_block = Rect(170, 50, 10*(self.score % 100), 30)
+        score = self.map(self.level_factor-20, self.level_factor, 0, 1000, self.score)
+        score_block = Rect(170, 50, score, 30)
         pygame.draw.rect(screen, [0, 255, 255], score_block)
         for b in range(self.blood):
             pygame.draw.rect(screen, [255,0,0], (x-70+14*b, y-90, 10, 10))
@@ -49,7 +51,9 @@ class Player(GameObject):
         screen.blit(text, (50,50))
 
     def update(self):
-        self.level = self.score // 100
+        if self.score > self.level_factor:
+            self.level += 1
+            self.level_factor += 20
         zombie = self.master.monster.touch(self, True)
         if self.delay(500) and zombie:
             self.last_time = pygame.time.get_ticks()
