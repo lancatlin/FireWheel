@@ -44,7 +44,7 @@ class Main:
         self.monster.update()
         self.stuff.update()
 
-    def gameover(self, screen):
+    def gameover(self, screen, tops=[]):
         screen.fill(bg) 
         position = (self.player.x, self.player.y)
         self.field.repaint(screen, position)
@@ -89,14 +89,35 @@ class Main:
                     elif e.key == K_SPACE:
                         self.player.shut()
             if not play:
-                self.gameover(self.screen)    
+                self.gameover(self.screen, tops)    
             elif self.player.blood == 0:
                 play = False
                 sound.stop()
+                tops = self.top(self.player.score)
+                print(tops)
             else:
                 self.update()
                 self.repaint(self.screen)
             self.clock.tick(30)
+
+    @staticmethod
+    def top(score):
+        try:
+            with open('data/score.txt', 'r') as file:
+                data = file.read()
+                score_list = data.split('\n')
+        except FileNotFoundError:
+            score_list = ['0' for i in range(10)]
+        print(score_list)
+        for s in range(len(score_list)):
+            if score > int(score_list[s]):
+                score_list.insert(s, str(score))
+                break
+        while len(score_list) > 10:
+            del score_list[-1]
+        with open('data/score.txt', 'w') as file:
+            file.write('\n'.join(score_list))
+        return ['%s: %s' % (i+1, score_list[i]) for i in range(len(score_list))]
 
 
 root = Main()
