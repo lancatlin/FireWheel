@@ -66,6 +66,9 @@ class Main:
 
     def begin(self):
         play = True
+        pygame.mixer.init()
+        sound = pygame.mixer.Sound('data/sound/Jay_Jay.wav')
+        sound.play(-1)
         while True:
             for e in pygame.event.get():
                 if e.type == QUIT:
@@ -89,6 +92,7 @@ class Main:
                 self.gameover(self.screen)    
             elif self.player.blood == 0:
                 play = False
+                sound.stop()
             else:
                 self.update()
                 self.repaint(self.screen)
