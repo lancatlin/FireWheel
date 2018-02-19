@@ -12,7 +12,7 @@ class Wall(GameObject):
     def __init__(self, master, position):
         super().__init__(master)
         self.x, self.y = position
-        self.color = [255, 255, 255]
+        self.color = [200, 200, 200]
         self.rects = [Rect(self.x - w/2, self.y - h/2, w, h),
                       Rect(self.x - h/2, self.y - w/2, h, w)]
     

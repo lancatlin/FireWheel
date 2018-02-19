@@ -99,7 +99,8 @@ class Manager(GameObject):
              return None
 
     def update(self, be_kill=[]):
-        i = random.choice(be_kill)
-        if i not in self.live:
-            i.kill()
+        if be_kill:
+            i = random.choice(be_kill)
+            if i not in self.live:
+                i.kill()
 

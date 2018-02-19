@@ -25,7 +25,7 @@ class Player(GameObject):
         self.speed = 2
         self.blood = 10
         self.score = 0
-        self.level_factor = [0, 10]
+        self.level_factor = [0, 9]
         self.level = 0
         self.a = [0, 0]
         self.touchable = []
@@ -35,7 +35,7 @@ class Player(GameObject):
         在此實做player的座標轉換是為了未來的鏡頭移動所準備，在實做此功能後，未來可維護性較高
         '''
         x, y = super().repaint(screen, position)
-        pygame.draw.circle(screen, self.color, (x, y), self.r)
+        pygame.draw.circle(screen, self.color, (x, y), self.r, 5)
         self.gun.repaint(screen, position)
         for b in self.bullet:
             b.repaint(screen, position)
@@ -51,19 +51,26 @@ class Player(GameObject):
         screen.blit(text, (50,50))
 
     def update(self):
+        '''更新狀態'''
+        #如果分數超過最高就升等
         if self.score > self.level_factor[-1]:
             self.level += 1
-            self.level_factor.append(self.level_factor[-1]*2 + 5)
+            self.level_factor.append(self.level_factor[-1]*2 + 3)
+
         zombie = self.master.monster.touch(self, True)
+        #如果碰到殭屍、狙擊手、敵方子彈
         if self.delay(500) and zombie:
             self.last_time = pygame.time.get_ticks()
             self.blood -= 1
+            #向反方向反彈
             self.near((zombie.x, zombie.y), -30)
             if zombie in self.master.monster.bullet:
                 zombie.kill()
+        #更新玩家子彈
         for b in self.bullet:
             b.update()
         
+        #如果按下按鍵就移動
         if self.iskey(K_w):
             self.a[1] += -self.speed
         if self.iskey(K_s):
@@ -73,14 +80,18 @@ class Player(GameObject):
         if self.iskey(K_a):
             self.a[0] += -self.speed
         super().update(lambda :self.master.field.touch(self))
+        
+        #如果正在發射狀態就執行
         if self.shuting:
             self.shut()
         self.gun.update()
         
     def shut(self):
+        #沒有在發射中，代表是第一次執行
         if not self.shuting:
             self.shuting = True
             self.gun.shuting = True
+        #按鍵放開，結束發射模式
         elif not self.iskey(K_SPACE):
             self.bullet.append(PlayerBullet(self))
             self.move(self.gun.angle, -6)

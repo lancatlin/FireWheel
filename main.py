@@ -20,10 +20,7 @@ class Main:
         print(type(self.screen))
         pygame.display.set_caption('FireWhell火輪手槍')
 
-        self.field = wall.Field(self)
-        self.player = Player(self)
-        self.monster = monster.MonsterManager(self)
-        self.stuff = stuff.StuffManager(self)
+        #物件初始化
         self.clock = pygame.time.Clock()
 
     def repaint(self, screen):
@@ -39,12 +36,14 @@ class Main:
         pygame.display.update()
 
     def update(self):
+        '''物件更新'''
         self.player.update()
         self.field.update()
         self.monster.update()
         self.stuff.update()
 
     def gameover(self, screen, tops=[]):
+        '''結束畫面'''
         screen.fill(bg) 
         position = (self.player.x, self.player.y)
         self.field.repaint(screen, position)
@@ -56,16 +55,30 @@ class Main:
         text2 = f.render('Score: %s' % self.player.score, True, self.player.color)
         rect1 = text1.get_rect()
         rect2 = text2.get_rect()
-        rect1.center = [wh[0]/2, wh[1]/2 - 100]
-        rect2.center = [wh[0]/2, wh[1]/2 + 100]
+        rect1.center = [wh[0]/2, wh[1]/2 - 300]
+        rect2.center = [wh[0]/2, wh[1]/2 - 150]
         screen.blit(text1, rect1)
         screen.blit(text2, rect2)
+
+        f = pygame.font.Font('data/freesansbold.ttf', 50)
+        for i in range(len(tops)):
+            color = self.player.color if int(tops[i]) == self.player.score else [255,255,255]
+            text = f.render('%s: %s' % (i+1, tops[i]), True, color)
+            screen.blit(text, (wh[0]/2-100, wh[1]/2 + 50*(i-1)))
 
         pygame.display.flip()
         pygame.display.update()
 
+    def reset(self):
+        self.field = wall.Field(self)
+        self.player = Player(self)
+        self.monster = monster.MonsterManager(self)
+        self.stuff = stuff.StuffManager(self)
+
     def begin(self):
-        play = True
+        '''主程序'''
+        play = True     #設定遊戲狀態
+        self.reset()
         pygame.mixer.init()
         sound = pygame.mixer.Sound('data/sound/Jay_Jay.wav')
         sound.play(-1)
@@ -83,11 +96,16 @@ class Main:
                             self.screen = pygame.display.set_mode(wh, FULLSCREEN)
                             print(self.screen.get_size())
 
-                    elif e.key == K_F12:
+                    elif e.key == K_ESCAPE:
                         exit()
                     
                     elif e.key == K_SPACE:
                         self.player.shut()
+
+                    elif e.key == K_RETURN and not play:
+                        self.reset()
+                        play = True
+                        sound.play(-1)
             if not play:
                 self.gameover(self.screen, tops)    
             elif self.player.blood == 0:
@@ -102,22 +120,23 @@ class Main:
 
     @staticmethod
     def top(score):
+        '''計算排行榜，排序分數，返回前七名並儲存到文件裡'''
         try:
             with open('data/score.txt', 'r') as file:
                 data = file.read()
                 score_list = data.split('\n')
         except FileNotFoundError:
-            score_list = ['0' for i in range(10)]
+            score_list = ['0' for i in range(7)]
         print(score_list)
         for s in range(len(score_list)):
             if score > int(score_list[s]):
                 score_list.insert(s, str(score))
                 break
-        while len(score_list) > 10:
+        while len(score_list) > 7:
             del score_list[-1]
         with open('data/score.txt', 'w') as file:
             file.write('\n'.join(score_list))
-        return ['%s: %s' % (i+1, score_list[i]) for i in range(len(score_list))]
+        return score_list
 
 
 root = Main()
