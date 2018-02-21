@@ -90,8 +90,8 @@ class Monster(GameObject):
     def near(self, position, step):
         x, y = self.x-position[0], self.y-position[1]
         distance = (x ** 2 + y ** 2) ** 0.5
-        self.a[0] -= x/distance * step
-        self.a[1] -= y/distance * step
+        self.v[0] -= x/distance * step
+        self.v[1] -= y/distance * step
 
     def touch(self, person):
         d = self.distance(person)

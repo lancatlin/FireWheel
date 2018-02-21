@@ -2,6 +2,7 @@
 import pygame
 from pygame.locals import *
 import json
+import sys
 
 from player import Player
 import wall
@@ -86,6 +87,7 @@ class Main:
             for e in pygame.event.get():
                 if e.type == QUIT:
                     exit()
+                    sys.quit()
                 #設定全螢幕切換
                 elif e.type is KEYDOWN :
                     if e.key == K_F11:
@@ -98,6 +100,7 @@ class Main:
 
                     elif e.key == K_ESCAPE:
                         exit()
+                        sys.quit()
                     
                     elif e.key == K_SPACE:
                         self.player.shut()

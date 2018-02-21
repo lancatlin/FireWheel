@@ -14,7 +14,7 @@ class GameObject:
         self.master = master
         self.x = 0
         self.y = 0
-        self.a = [0, 0]
+        self.v = [0, 0]
         self.angle = 0
         self.color = []
         self.last_time = 0
@@ -27,16 +27,16 @@ class GameObject:
     def update(self,touch=lambda:None, f=F):
         if touch():
             self.live = False
-        self.x += self.a[0]
+        self.x += self.v[0]
         if touch():
-            self.x -= self.a[0]
-            self.a[0] = 0
-        self.y += self.a[1]
+            self.x -= self.v[0]
+            self.v[0] = 0
+        self.y += self.v[1]
         if touch():
-            self.y -= self.a[1]
-            self.a[1] = 0
+            self.y -= self.v[1]
+            self.v[1] = 0
 
-        self.a = [x*f for x in self.a]
+        self.v = [x*f for x in self.v]
 
     def kill(self):
         pass
@@ -51,12 +51,12 @@ class GameObject:
     def near(self, position, step):
         x, y = self.x-position[0], self.y-position[1]
         distance = (x ** 2 + y ** 2) ** 0.5
-        self.a[0] -= x/distance * step
-        self.a[1] -= y/distance * step
+        self.v[0] -= x/distance * step
+        self.v[1] -= y/distance * step
 
     def move(self, angle, step):
-        self.a[0] += step * math.cos(angle)
-        self.a[1] += step * math.sin(angle)
+        self.v[0] += step * math.cos(angle)
+        self.v[1] += step * math.sin(angle)
 
     def be_touch(self):
         for i in self.touchable:

@@ -17,7 +17,7 @@ class Bullet(GameObject):
         self.speed = speed
         self.color = master.color
         self.range = 700
-        self.a = self.master.a.copy()
+        self.v = self.master.v.copy()
         self.move(self.angle, distance)
 
     def repaint(self, screen, position):

@@ -18,6 +18,7 @@ class Player(GameObject):
         self.x = -200
         self.y = 100
         self.r = 30
+        self.angle = 0
         self.color = [50, 200, 200]
         self.gun = Gun(self)
         self.bullet = []
@@ -27,8 +28,16 @@ class Player(GameObject):
         self.score = 0
         self.level_factor = [0, 9]
         self.level = 0
-        self.a = [0, 0]
+        self.v = [0, 0]
         self.touchable = []
+        self.next_score = self.next()
+        
+    def next(self):
+        d = 5
+        an = 10
+        while True:
+            an += d
+            yield an + self.level_factor[-1]
 
     def repaint(self, screen, position):
         '''
@@ -55,7 +64,7 @@ class Player(GameObject):
         #如果分數超過最高就升等
         if self.score > self.level_factor[-1]:
             self.level += 1
-            self.level_factor.append(self.level_factor[-1]*2 + 3)
+            self.level_factor.append(next(self.next_score))
 
         zombie = self.master.monster.touch(self, True)
         #如果碰到殭屍、狙擊手、敵方子彈
@@ -72,13 +81,13 @@ class Player(GameObject):
         
         #如果按下按鍵就移動
         if self.iskey(K_w):
-            self.a[1] += -self.speed
+            self.v[1] += -self.speed
         if self.iskey(K_s):
-            self.a[1] += self.speed
+            self.v[1] += self.speed
         if self.iskey(K_d):
-            self.a[0] += self.speed
+            self.v[0] += self.speed
         if self.iskey(K_a):
-            self.a[0] += -self.speed
+            self.v[0] += -self.speed
         super().update(lambda :self.master.field.touch(self))
         
         #如果正在發射狀態就執行
@@ -105,6 +114,7 @@ class Gun(GameObject):
         self.x = self.master.x
         self.y = self.master.y
         self.turn = speed
+        self.angle = 0
         self.shuting = False
         self.last_time = 0
 
