@@ -18,7 +18,6 @@ class Main:
     def __init__(self):
         pygame.init()
         self.screen = pygame.display.set_mode(wh)
-        print(type(self.screen))
         pygame.display.set_caption('FireWhell火輪手槍')
 
         #物件初始化
@@ -79,28 +78,26 @@ class Main:
     def begin(self):
         '''主程序'''
         play = True     #設定遊戲狀態
+        done = False
         self.reset()
         pygame.mixer.init()
         sound = pygame.mixer.Sound('data/sound/Jay_Jay.wav')
+        sound.set_volume(0.5)
         sound.play(-1)
-        while True:
+        while not done:
             for e in pygame.event.get():
                 if e.type == QUIT:
-                    exit()
-                    sys.quit()
+                    done = True
                 #設定全螢幕切換
                 elif e.type is KEYDOWN :
                     if e.key == K_F11:
                         if self.screen.get_flags() & FULLSCREEN:
                             self.screen = pygame.display.set_mode(wh)
-                            print(self.screen.get_size())
                         else:
                             self.screen = pygame.display.set_mode(wh, FULLSCREEN)
-                            print(self.screen.get_size())
 
                     elif e.key == K_ESCAPE:
-                        exit()
-                        sys.quit()
+                        done = True
                     
                     elif e.key == K_SPACE:
                         self.player.shut()
@@ -115,7 +112,8 @@ class Main:
                 play = False
                 sound.stop()
                 tops = self.top(self.player.score)
-                print(tops)
+                gameoverSound = pygame.mixer.Sound('data/sound/triumph.wav')
+                gameoverSound.play()
             else:
                 self.update()
                 self.repaint(self.screen)
@@ -130,7 +128,6 @@ class Main:
                 score_list = data.split('\n')
         except FileNotFoundError:
             score_list = ['0' for i in range(7)]
-        print(score_list)
         for s in range(len(score_list)):
             if score > int(score_list[s]):
                 score_list.insert(s, str(score))

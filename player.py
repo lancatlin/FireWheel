@@ -11,6 +11,11 @@ wh = GameObject.setting['wh']
 speed = GameObject.setting['speed']
 distance = GameObject.setting['distance']
 
+touchSound = pygame.mixer.Sound('data/sound/scream.wav')
+touchSound.set_volume(0.2)
+upSound = pygame.mixer.Sound('data/sound/fairydust.wav')
+upSound.set_volume(1)
+
 class Player(GameObject):
     '''玩家物件，可以上下左右移動'''
     def __init__(self, master):
@@ -20,6 +25,8 @@ class Player(GameObject):
         self.r = 30
         self.angle = 0
         self.color = [50, 200, 200]
+        self.sound = pygame.mixer.Sound('data/sound/scream.wav')
+        self.sound.set_volume(0.2)
         self.gun = Gun(self)
         self.bullet = []
         self.shuting = False
@@ -65,6 +72,7 @@ class Player(GameObject):
         if self.score > self.level_factor[-1]:
             self.level += 1
             self.level_factor.append(next(self.next_score))
+            upSound.play()
 
         zombie = self.master.monster.touch(self, True)
         #如果碰到殭屍、狙擊手、敵方子彈
@@ -75,6 +83,7 @@ class Player(GameObject):
             self.near((zombie.x, zombie.y), -30)
             if zombie in self.master.monster.bullet:
                 zombie.kill()
+            touchSound.play()
         #更新玩家子彈
         for b in self.bullet:
             b.update()
