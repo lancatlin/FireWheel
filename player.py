@@ -10,6 +10,7 @@ from bullet import PlayerBullet
 wh = GameObject.setting['wh']
 speed = GameObject.setting['speed']
 distance = GameObject.setting['distance']
+cd_time = 1000
 
 touchSound = pygame.mixer.Sound('data/sound/scream.wav')
 touchSound.set_volume(0.2)
@@ -38,6 +39,8 @@ class Player(GameObject):
         self.v = [0, 0]
         self.touchable = []
         self.next_score = self.next()
+        self.cooldown = 0
+        self.power = 1
         
     def next(self):
         d = 5
@@ -111,9 +114,12 @@ class Player(GameObject):
             self.gun.shuting = True
         #按鍵放開，結束發射模式
         elif not self.iskey(K_SPACE):
-            self.bullet.append(PlayerBullet(self))
+            now = pygame.time.get_ticks()
+            power = self.power * self.map(0, cd_time, 0.0, self.power, min(now-self.cooldown, cd_time))
+            self.bullet.append(PlayerBullet(self, power=power))
             self.move(self.gun.angle, -6)
             self.shuting = False
+            self.cooldown = pygame.time.get_ticks()
 
 
 

@@ -22,6 +22,8 @@ class Main:
 
         #物件初始化
         self.clock = pygame.time.Clock()
+        self.sound = pygame.mixer.Sound('data/sound/Jay_Jay.wav')
+        self.sound.set_volume(0.5)
 
     def repaint(self, screen):
         '''將各個物件顯示到螢幕上。position為視野的座標，將此變數傳到各個物件，使物件在相對於座標的地方進行繪圖。repaint繼承自GameObject'''
@@ -74,6 +76,7 @@ class Main:
         self.player = Player(self)
         self.monster = monster.MonsterManager(self)
         self.stuff = stuff.StuffManager(self)
+        #self.sound.play(-1)
 
     def begin(self):
         '''主程序'''
@@ -81,9 +84,6 @@ class Main:
         done = False
         self.reset()
         pygame.mixer.init()
-        sound = pygame.mixer.Sound('data/sound/Jay_Jay.wav')
-        sound.set_volume(0.5)
-        sound.play(-1)
         while not done:
             for e in pygame.event.get():
                 if e.type == QUIT:
@@ -105,7 +105,6 @@ class Main:
                     elif e.key == K_RETURN and not play:
                         self.reset()
                         play = True
-                        sound.play(-1)
             if not play:
                 self.gameover(self.screen, tops)    
             elif self.player.blood == 0:

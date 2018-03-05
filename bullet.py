@@ -8,7 +8,7 @@ from game_object import GameObject
 distance = GameObject.setting['distance']
 
 class Bullet(GameObject):
-    def __init__(self, master, speed=30):
+    def __init__(self, master, speed=30, power=1):
         super().__init__(master)
         self.x = master.x
         self.y = master.y
@@ -19,10 +19,12 @@ class Bullet(GameObject):
         self.range = 700
         self.v = self.master.v.copy()
         self.move(self.angle, distance)
+        self.power = power
 
     def repaint(self, screen, position):
         xy = super().repaint(screen, position)
-        pygame.draw.circle(screen, self.color, xy, self.r)
+        color = [c*self.power for c in self.color]
+        pygame.draw.circle(screen, color, xy, self.r)
 
     def move(self, angle, step):
         self.x += step * math.cos(angle)

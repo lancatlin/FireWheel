@@ -10,6 +10,7 @@ from bullet import SniperBullet
 
 z_capped = lambda x:20 + x*2
 s_capped = lambda x:15 + x*2
+wh = GameObject.setting['wh']
 
 class MonsterManager(Manager):
     def __init__(self, master):
@@ -22,30 +23,26 @@ class MonsterManager(Manager):
         self.live = []
 
     def update(self):
-        if pygame.time.get_ticks() - self.last_time > 1000:
-            self.update_live()
-            super().update(self.zombies+self.snipers)
-            self.last_time = pygame.time.get_ticks()
-        elif len(self.zombies) < z_capped(self.player.level):
+        if len(self.zombies) < z_capped(self.player.level):
             self.zombies.append(Zombie(self))
         elif len(self.snipers) < s_capped(self.player.level):
             self.snipers.append(Sniper(self))
-        for z in self.live:
+        for z in self.zombies + self.snipers + self.bullet:
             z.update()
 
     def touch(self, person, mode=True):
         for z in self.live + (self.bullet if mode else []):
             if z.touch(person) and person is not z :
                 if person in self.player.bullet:
-                    z.kill()
-                    self.player.score += z.score
+                    z.kill(person.power)
                 if mode or z not in self.bullet:
                     return z
         else:
             return None
 
-    def update_live(self):
-        super().update_live(self.zombies+self.snipers+self.bullet)
+    def repaint(self, screen, position):
+        for i in self.zombies + self.snipers + self.bullet:
+            i.repaint(screen, position)
 
 
 class Monster(GameObject):
@@ -59,7 +56,7 @@ class Monster(GameObject):
         self.color = [0, 255, 255]
         self.score = 5
         self.r = 30
-        self.live = True
+        self.live = 2.0
         self.range = lambda: 600 + self.player.level * 50 > self.distance(self)
         if color:
             self.color = color
@@ -77,7 +74,8 @@ class Monster(GameObject):
 
     def repaint(self, screen, position):
         p = super().repaint(screen, position)
-        pygame.draw.circle(screen, self.color, p, self.r)
+        if abs(p[0]) < wh[0] and abs(p[1]) < wh[1]:
+            pygame.draw.circle(screen, self.color, p, self.r)
 
     def move(self, angle, step):
         self.x += step * math.cos(angle)
@@ -113,9 +111,11 @@ class Zombie(Monster):
         if not self.live:
             self.kill()
 
-    def kill(self):
-        self.master.zombies.remove(self)
-        self.master.update_live()
+    def kill(self, power=2):
+        self.live -= power
+        if self.live <= 0:
+            self.master.zombies.remove(self)
+            self.master.update_live()
 
 class Sniper(Monster):
     def __init__(self, master):
@@ -149,7 +149,9 @@ class Sniper(Monster):
         super().update(lambda :self.field.touch(self) or self.master.touch(self))
         self.gun.update()
 
-    def kill(self):
-        self.master.snipers.remove(self)
-        self.master.update_live()
+    def kill(self, power=2):
+        self.live -= power
+        if self.live <= 0:
+            self.master.snipers.remove(self)
+            self.master.update_live()
 
