@@ -30,7 +30,7 @@ class Player(GameObject):
         self.gun = Gun(self)
         self.bullet = []
         self.shuting = False
-        self.speed = 2
+        self.speed = 1.2
         self.blood = 10
         self.score = 0
         self.level_factor = [0, 9]

@@ -5,7 +5,7 @@ import random
 
 
 pygame.init()
-F = 0.88
+F = 0.8
 
 class GameObject:
     setting = json.load(open('setting.json', 'r'))
@@ -36,7 +36,9 @@ class GameObject:
             self.y -= self.v[1]
             self.v[1] = 0
 
-        self.v = [x*f for x in self.v]
+        self.v = [x for x in self.v]
+        self.v[0] = max(0, self.v[0] - f) if self.v[0] > 0 else min(0, self.v[0] + f)
+        self.v[1] = max(0, self.v[1] - f) if self.v[1] > 0 else min(0, self.v[1] + f)
 
     def kill(self):
         pass
