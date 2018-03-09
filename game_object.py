@@ -58,13 +58,6 @@ class GameObject:
         self.v[0] += step * math.cos(angle)
         self.v[1] += step * math.sin(angle)
 
-    def be_touch(self):
-        for i in self.touchable:
-            if i.touch(self):
-                return i
-        else:
-             return None
-
     def touch(self, person):
         distance = ((person.x - self.x)**2 + (person.y - self.y)**2) ** 0.5
         return self if distance < self.r+person.r else None

@@ -115,6 +115,9 @@ class Player(GameObject):
             self.move(self.gun.angle, -6)
             self.shuting = False
 
+    def addPoint(self, score):
+        self.score += score
+
 
 
 class Gun(GameObject):
