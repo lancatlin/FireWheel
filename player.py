@@ -16,6 +16,9 @@ touchSound.set_volume(0.2)
 upSound = pygame.mixer.Sound('data/sound/fairydust.wav')
 upSound.set_volume(1)
 
+cd_time = 500
+
+
 class Player(GameObject):
     '''玩家物件，可以上下左右移動'''
     def __init__(self, master):
@@ -38,6 +41,8 @@ class Player(GameObject):
         self.v = [0, 0]
         self.touchable = []
         self.next_score = self.next()
+        self.cooldown = 0
+        self.power = 1
         
     def next(self):
         d = 5
@@ -111,9 +116,12 @@ class Player(GameObject):
             self.gun.shuting = True
         #按鍵放開，結束發射模式
         elif not self.iskey(K_SPACE):
-            self.bullet.append(PlayerBullet(self))
+            now = pygame.time.get_ticks()
+            power = self.power * self.map(0, cd_time, 0, self.power, min(now - self.cooldown, cd_time))
+            self.bullet.append(PlayerBullet(self, power=power))
             self.move(self.gun.angle, -6)
             self.shuting = False
+            self.cooldown = now
 
     def addPoint(self, score):
         self.score += score
@@ -132,8 +140,14 @@ class Gun(GameObject):
 
     def repaint(self, screen, position):
         x, y = super().repaint(screen, position)
-        xy = (int(x + math.cos(self.angle+self.master.angle) * distance), int(y + math.sin(self.angle+self.master.angle) * distance))
-        pygame.draw.circle(screen, self.master.color, xy, 10)
+        point = [(0, -90), (10, -70), (-10, -70)]
+        angle = self.angle + self.master.angle
+        newpoint = []
+        for p in point:
+            nx = p[0] * math.cos(angle) + p[1] * math.sin(angle) + x
+            ny = p[0] * math.sin(angle) + p[1] * math.cos(angle) + y
+            newpoint.append((nx, ny))
+        pygame.draw.polygon(screen, self.master.color, newpoint)
 
     def update(self):
         self.x = self.master.x

@@ -104,7 +104,6 @@ class Monster(GameObject):
         result = self if d < self.r+person.r else None
         if person in self.player.bullet and result:
             self.hit(person.power)
-            self.player.addPoint(self.score)
         return result
 
     def distance(self, person):
@@ -114,6 +113,7 @@ class Monster(GameObject):
         self.blood -= power
         if self.blood  <= 0:
             self.live = False
+            self.player.addPoint(self.score)
 
 
 class Zombie(Monster):
