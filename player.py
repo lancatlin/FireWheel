@@ -143,9 +143,9 @@ class Gun(GameObject):
         point = [(0, -90), (10, -70), (-10, -70)]
         angle = self.angle + self.master.angle
         newpoint = []
-        for p in point:
-            nx = p[0] * math.cos(angle) + p[1] * math.sin(angle) + x
-            ny = p[0] * math.sin(angle) + p[1] * math.cos(angle) + y
+        for px, py in point:
+            nx = px * math.cos(angle + math.pi / 2) - py * math.sin(angle + math.pi / 2) + x
+            ny = px * math.cos(angle) - py * math.sin(angle) + y
             newpoint.append((nx, ny))
         pygame.draw.polygon(screen, self.master.color, newpoint)
 
