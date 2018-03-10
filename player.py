@@ -105,7 +105,7 @@ class Player(GameObject):
             self.v[0] += -self.speed
         super().update(lambda :self.master.field.touch(self))
         now = pygame.time.get_ticks()
-        self.cooldown = self.power * self.map(0, cd_time, 0, self.power, min(now - self.last_shut, cd_time))
+        self.cooldown = self.map(0, cd_time, 0, 1, min(now - self.last_shut, cd_time))
         
         #如果正在發射狀態就執行
         if self.shuting:
@@ -119,7 +119,7 @@ class Player(GameObject):
             self.gun.shuting = True
         #按鍵放開，結束發射模式
         elif not self.iskey(K_SPACE):
-            self.bullet.append(PlayerBullet(self, power=self.cooldown))
+            self.bullet.append(PlayerBullet(self, power=self.power * self.cooldown))
             self.move(self.gun.angle, -6)
             self.shuting = False
             self.last_shut = pygame.time.get_ticks()
@@ -138,7 +138,6 @@ class Gun(GameObject):
         self.angle = 0
         self.shuting = False
         self.last_time = 0
-        print(type(self.master).__name__)
 
     def repaint(self, screen, position):
         x, y = super().repaint(screen, position)
