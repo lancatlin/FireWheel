@@ -104,6 +104,7 @@ class Monster(GameObject):
         result = self if d < self.r+person.r else None
         if person in self.player.bullet and result:
             self.hit(person.power)
+            self.near((person.x, person.y), -20)
         return result
 
     def distance(self, person):

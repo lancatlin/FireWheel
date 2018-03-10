@@ -41,6 +41,7 @@ class Player(GameObject):
         self.v = [0, 0]
         self.touchable = []
         self.next_score = self.next()
+        self.last_shut = 0
         self.cooldown = 0
         self.power = 1
         
@@ -103,6 +104,8 @@ class Player(GameObject):
         if self.iskey(K_a):
             self.v[0] += -self.speed
         super().update(lambda :self.master.field.touch(self))
+        now = pygame.time.get_ticks()
+        self.cooldown = self.power * self.map(0, cd_time, 0, self.power, min(now - self.last_shut, cd_time))
         
         #如果正在發射狀態就執行
         if self.shuting:
@@ -116,12 +119,10 @@ class Player(GameObject):
             self.gun.shuting = True
         #按鍵放開，結束發射模式
         elif not self.iskey(K_SPACE):
-            now = pygame.time.get_ticks()
-            power = self.power * self.map(0, cd_time, 0, self.power, min(now - self.cooldown, cd_time))
-            self.bullet.append(PlayerBullet(self, power=power))
+            self.bullet.append(PlayerBullet(self, power=self.cooldown))
             self.move(self.gun.angle, -6)
             self.shuting = False
-            self.cooldown = now
+            self.last_shut = pygame.time.get_ticks()
 
     def addPoint(self, score):
         self.score += score
@@ -137,6 +138,7 @@ class Gun(GameObject):
         self.angle = 0
         self.shuting = False
         self.last_time = 0
+        print(type(self.master).__name__)
 
     def repaint(self, screen, position):
         x, y = super().repaint(screen, position)
@@ -147,14 +149,13 @@ class Gun(GameObject):
             nx = px * math.cos(angle + math.pi / 2) - py * math.sin(angle + math.pi / 2) + x
             ny = px * math.cos(angle) - py * math.sin(angle) + y
             newpoint.append((nx, ny))
-        pygame.draw.polygon(screen, self.master.color, newpoint)
+        color = [c * self.master.cooldown for c in self.master.color] if type(self.master).__name__ == 'Player' else self.master.color
+        pygame.draw.polygon(screen, color, newpoint)
 
     def update(self):
         self.x = self.master.x
         self.y = self.master.y
         self.angle += self.turn
-        if self.angle > 270:
-            self.angle-270
         if self.shuting:
             self.shut()
 
