@@ -16,7 +16,6 @@ touchSound.set_volume(0.2)
 upSound = pygame.mixer.Sound('data/sound/fairydust.wav')
 upSound.set_volume(1)
 
-cd_time = 500
 
 
 class Player(GameObject):
@@ -34,13 +33,16 @@ class Player(GameObject):
         self.bullet = []
         self.shuting = False
         self.speed = 2
-        self.blood = 10
+        self.blood = 5
+        self.HP = 5
+        self.DEF = 1
         self.score = 0
         self.level_factor = [0, 9]
         self.level = 0
         self.v = [0, 0]
         self.touchable = []
         self.next_score = self.next()
+        self.CD = 500
         self.last_shut = 0
         self.cooldown = 0
         self.power = 1
@@ -65,7 +67,7 @@ class Player(GameObject):
         score = self.map(self.level_factor[-2], self.level_factor[-1], 0, 1000, self.score)
         score_block = Rect(170, 50, score, 30)
         pygame.draw.rect(screen, [0, 255, 255], score_block)
-        for b in range(self.blood):
+        for b in range(int(self.blood)):
             pygame.draw.rect(screen, [255,0,0], (x-70+14*b, y-90, 10, 10))
 
         font = pygame.font.Font('data/freesansbold.ttf', 30)
@@ -76,20 +78,12 @@ class Player(GameObject):
         '''更新狀態'''
         #如果分數超過最高就升等
         if self.score > self.level_factor[-1]:
-            self.level += 1
-            self.level_factor.append(next(self.next_score))
-            upSound.play()
-
+            self.level_up()
         zombie = self.master.monster.touch(self, True)
         #如果碰到殭屍、狙擊手、敵方子彈
         if self.delay(500) and zombie:
-            self.last_time = pygame.time.get_ticks()
-            self.blood -= 1
+            self.hit(zombie)
             #向反方向反彈
-            self.near((zombie.x, zombie.y), -30)
-            if zombie in self.master.monster.bullet:
-                zombie.kill()
-            touchSound.play()
         #更新玩家子彈
         for b in self.bullet:
             b.update()
@@ -105,7 +99,7 @@ class Player(GameObject):
             self.v[0] += -self.speed
         super().update(lambda :self.master.field.touch(self))
         now = pygame.time.get_ticks()
-        self.cooldown = self.map(0, cd_time, 0, 1, min(now - self.last_shut, cd_time))
+        self.cooldown = self.map(0, self.CD, 0, 1, min(now - self.last_shut, self.CD))
         
         #如果正在發射狀態就執行
         if self.shuting:
@@ -127,6 +121,23 @@ class Player(GameObject):
     def addPoint(self, score):
         self.score += score
 
+    def hit(self, person):
+        self.last_time = pygame.time.get_ticks()
+        self.blood -= person.power * self.DEF
+        self.near((person.x, person.y), -30)
+        if person in self.master.monster.bullet:
+            person.kill()
+        touchSound.play()
+        print(self.blood)
+
+    def addBlood(self):
+        self.blood += 1 if self.blood < self.HP else 0
+
+    def level_up(self):
+        self.level += 1
+        self.level_factor.append(next(self.next_score))
+        self.master.card.level_up()
+        upSound.play()
 
 
 class Gun(GameObject):

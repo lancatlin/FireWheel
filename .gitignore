@@ -3,6 +3,7 @@
 env
 __pycache__
 data/score.txt
+math.py
 =======
 # Byte-compiled / optimized / DLL files
 __pycache__/
