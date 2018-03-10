@@ -16,6 +16,9 @@ touchSound.set_volume(0.2)
 upSound = pygame.mixer.Sound('data/sound/fairydust.wav')
 upSound.set_volume(1)
 
+cd_time = 500
+
+
 class Player(GameObject):
     '''玩家物件，可以上下左右移動'''
     def __init__(self, master):
@@ -38,6 +41,9 @@ class Player(GameObject):
         self.v = [0, 0]
         self.touchable = []
         self.next_score = self.next()
+        self.last_shut = 0
+        self.cooldown = 0
+        self.power = 1
         
     def next(self):
         d = 5
@@ -98,6 +104,8 @@ class Player(GameObject):
         if self.iskey(K_a):
             self.v[0] += -self.speed
         super().update(lambda :self.master.field.touch(self))
+        now = pygame.time.get_ticks()
+        self.cooldown = self.map(0, cd_time, 0, 1, min(now - self.last_shut, cd_time))
         
         #如果正在發射狀態就執行
         if self.shuting:
@@ -111,9 +119,13 @@ class Player(GameObject):
             self.gun.shuting = True
         #按鍵放開，結束發射模式
         elif not self.iskey(K_SPACE):
-            self.bullet.append(PlayerBullet(self))
+            self.bullet.append(PlayerBullet(self, power=self.power * self.cooldown))
             self.move(self.gun.angle, -6)
             self.shuting = False
+            self.last_shut = pygame.time.get_ticks()
+
+    def addPoint(self, score):
+        self.score += score
 
 
 
@@ -129,15 +141,20 @@ class Gun(GameObject):
 
     def repaint(self, screen, position):
         x, y = super().repaint(screen, position)
-        xy = (int(x + math.cos(self.angle+self.master.angle) * distance), int(y + math.sin(self.angle+self.master.angle) * distance))
-        pygame.draw.circle(screen, self.master.color, xy, 10)
+        point = [(0, -90), (10, -70), (-10, -70)]
+        angle = self.angle + self.master.angle
+        newpoint = []
+        for px, py in point:
+            nx = px * math.cos(angle + math.pi / 2) - py * math.sin(angle + math.pi / 2) + x
+            ny = px * math.cos(angle) - py * math.sin(angle) + y
+            newpoint.append((nx, ny))
+        color = [c * self.master.cooldown for c in self.master.color] if type(self.master).__name__ == 'Player' else self.master.color
+        pygame.draw.polygon(screen, color, newpoint)
 
     def update(self):
         self.x = self.master.x
         self.y = self.master.y
         self.angle += self.turn
-        if self.angle > 270:
-            self.angle-270
         if self.shuting:
             self.shut()
 

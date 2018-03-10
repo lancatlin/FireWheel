@@ -30,22 +30,25 @@ class MonsterManager(Manager):
             self.zombies.append(Zombie(self))
         elif len(self.snipers) < s_capped(self.player.level):
             self.snipers.append(Sniper(self))
-        for z in self.live:
+        for z in self.live + self.bullet:
             z.update()
 
     def touch(self, person, mode=True):
-        for z in self.live + (self.bullet if mode else []):
-            if z.touch(person) and person is not z :
-                if person in self.player.bullet:
-                    z.kill()
-                    self.player.score += z.score
-                if mode or z not in self.bullet:
-                    return z
-        else:
-            return None
+        for z in self.live:
+            if z.touch(person):
+                return z
+        if mode:
+            for b in self.bullet:
+                if b.touch(person):
+                    return b
+        return None
 
     def update_live(self):
-        super().update_live(self.zombies+self.snipers+self.bullet)
+        super().update_live(self.zombies+self.snipers)
+
+    def repaint(self, screen, position):
+        for i in self.live + self.bullet:
+            i.repaint(screen, position)
 
 
 class Monster(GameObject):
@@ -60,6 +63,7 @@ class Monster(GameObject):
         self.score = 5
         self.r = 30
         self.live = True
+        self.blood = 1.0
         self.range = lambda: 600 + self.player.level * 50 > self.distance(self)
         if color:
             self.color = color
@@ -94,11 +98,23 @@ class Monster(GameObject):
         self.v[1] -= y/distance * step
 
     def touch(self, person):
+        if person is self:
+            return None
         d = self.distance(person)
-        return self if d < self.r+person.r else None
+        result = self if d < self.r+person.r else None
+        if person in self.player.bullet and result:
+            self.hit(person.power)
+            self.near((person.x, person.y), -20)
+        return result
 
     def distance(self, person):
         return ((person.x - self.x)**2 + (person.y - self.y)**2) ** 0.5
+
+    def hit(self, power):
+        self.blood -= power
+        if self.blood  <= 0:
+            self.live = False
+            self.player.addPoint(self.score)
 
 
 class Zombie(Monster):
@@ -116,6 +132,7 @@ class Zombie(Monster):
     def kill(self):
         self.master.zombies.remove(self)
         self.master.update_live()
+
 
 class Sniper(Monster):
     def __init__(self, master):
@@ -146,8 +163,10 @@ class Sniper(Monster):
                 self.last_time = pygame.time.get_ticks()
             elif d < 400:
                 self.near((self.player.x, self.player.y), -self.speed)
-        super().update(lambda :self.field.touch(self) or self.master.touch(self))
-        self.gun.update()
+            super().update(lambda :self.field.touch(self) or self.master.touch(self, False))
+            self.gun.update()
+        if not self.live:
+            self.kill()
 
     def kill(self):
         self.master.snipers.remove(self)
