@@ -22,37 +22,42 @@ class Player(GameObject):
     '''玩家物件，可以上下左右移動'''
     def __init__(self, master):
         super().__init__(master)
+        #位置、狀態
         self.x = -200
         self.y = 100
         self.r = 30
         self.angle = 0
+        self.v = [0, 0]
+        #外型
         self.color = [50, 200, 200]
         self.sound = pygame.mixer.Sound('data/sound/scream.wav')
         self.sound.set_volume(0.2)
+        #配件
         self.gun = Gun(self)
         self.bullet = []
         self.shuting = False
+        self.level_factor = [0, 9]
+        self.level = 0
+        self.next_score = self.next()
+        #遊戲屬性
+        self.power = 1
+        self.cooldown = 0
+        self.last_shut = 0
+        self.CD = 500
+        self.score = 0
         self.speed = 2
         self.blood = 5
         self.HP = 5
-        self.DEF = 1
-        self.score = 0
-        self.level_factor = [0, 9]
-        self.level = 0
-        self.v = [0, 0]
-        self.touchable = []
-        self.next_score = self.next()
-        self.CD = 500
-        self.last_shut = 0
-        self.cooldown = 0
-        self.power = 1
+        self.DEF = 0
         
     def next(self):
         d = 5
         an = 10
+        s = an
         while True:
             an += d
-            yield an + self.level_factor[-1]
+            s += an
+            yield s
 
     def repaint(self, screen, position):
         '''
@@ -67,8 +72,13 @@ class Player(GameObject):
         score = self.map(self.level_factor[-2], self.level_factor[-1], 0, 1000, self.score)
         score_block = Rect(170, 50, score, 30)
         pygame.draw.rect(screen, [0, 255, 255], score_block)
+        b = -1
         for b in range(int(self.blood)):
             pygame.draw.rect(screen, [255,0,0], (x-70+14*b, y-90, 10, 10))
+        b += 1
+        w = max(self.map(0, 1, 0, 10, (self.blood - int(self.blood))), 0)
+        if w:
+            pygame.draw.rect(screen, [255, 0, 0], (x-70+14*b, y-90, w, 10))
 
         font = pygame.font.Font('data/freesansbold.ttf', 30)
         text = font.render('level: %s' % self.level, True, [255, 255, 255])
@@ -123,7 +133,7 @@ class Player(GameObject):
 
     def hit(self, person):
         self.last_time = pygame.time.get_ticks()
-        self.blood -= person.power * self.DEF
+        self.blood -= max(person.power-self.DEF, 0)
         self.near((person.x, person.y), -30)
         if person in self.master.monster.bullet:
             person.kill()
@@ -131,7 +141,7 @@ class Player(GameObject):
         print(self.blood)
 
     def addBlood(self):
-        self.blood += 1 if self.blood < self.HP else 0
+        self.blood = min(self.blood+1, self.HP)
 
     def level_up(self):
         self.level += 1

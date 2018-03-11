@@ -4,7 +4,6 @@ from pygame.locals import *
 from game_object import *
 
 wh = setting['wh']
-cardPosition = setting['cardPosition']
 cardName = ["HP",
             "ATK",
             "CD",
@@ -16,7 +15,8 @@ class Card(GameObject):
         self.master = master
         self.name = name
         self.player = master.player
-        self.x, self.y = cardPosition[p]
+        self.x = wh[0]/6*(p+2)
+        self.y = wh[1]/4*3
 
     def repaint(self, screen, position):
         rect = [0, 0, 150, 150]
@@ -38,7 +38,7 @@ class Card(GameObject):
         elif self.name == "CD":
             self.player.CD -= 50 if self.player.CD > 200 else 0
         elif self.name == "DEF":
-            self.player.DEF -= 0.05 if self.player.DEF >= 0.6 else 0
+            self.player.DEF += 0.1 if self.player.DEF <= 0.6 else 0
         elif self.name == "NONE":
             pass
         print(self.name)
