@@ -6,6 +6,7 @@ import random
 
 pygame.init()
 F = 0.88
+setting = json.load(open('setting.json', 'r'))
 
 class GameObject:
     setting = json.load(open('setting.json', 'r'))
@@ -93,7 +94,8 @@ class Manager(GameObject):
 
     def update(self, be_kill=[]):
         if be_kill:
-            i = random.choice(be_kill)
-            if i not in self.live:
-                i.kill()
+            for i in be_kill:
+                if i not in self.live:
+                    i.kill()
+                    break
 

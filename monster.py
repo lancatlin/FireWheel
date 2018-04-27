@@ -64,6 +64,7 @@ class Monster(GameObject):
         self.r = 30
         self.live = True
         self.blood = 1.0
+        self.power = 1.0
         self.range = lambda: 600 + self.player.level * 50 > self.distance(self)
         if color:
             self.color = color
@@ -171,4 +172,6 @@ class Sniper(Monster):
     def kill(self):
         self.master.snipers.remove(self)
         self.master.update_live()
+        self.gun = None
+
 

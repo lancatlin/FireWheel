@@ -16,41 +16,48 @@ touchSound.set_volume(0.2)
 upSound = pygame.mixer.Sound('data/sound/fairydust.wav')
 upSound.set_volume(1)
 
-cd_time = 500
 
 
 class Player(GameObject):
     '''玩家物件，可以上下左右移動'''
     def __init__(self, master):
         super().__init__(master)
+        #位置、狀態
         self.x = -200
         self.y = 100
         self.r = 30
         self.angle = 0
+        self.v = [0, 0]
+        #外型
         self.color = [50, 200, 200]
         self.sound = pygame.mixer.Sound('data/sound/scream.wav')
         self.sound.set_volume(0.2)
+        #配件
         self.gun = Gun(self)
         self.bullet = []
         self.shuting = False
-        self.speed = 2
-        self.blood = 10
-        self.score = 0
         self.level_factor = [0, 9]
         self.level = 0
-        self.v = [0, 0]
-        self.touchable = []
         self.next_score = self.next()
-        self.last_shut = 0
-        self.cooldown = 0
+        #遊戲屬性
         self.power = 1
+        self.cooldown = 0
+        self.last_shut = 0
+        self.CD = 500
+        self.score = 0
+        self.speed = 2
+        self.blood = 5
+        self.HP = 5
+        self.DEF = 0
         
     def next(self):
         d = 5
         an = 10
+        s = an
         while True:
             an += d
-            yield an + self.level_factor[-1]
+            s += an
+            yield s
 
     def repaint(self, screen, position):
         '''
@@ -65,8 +72,13 @@ class Player(GameObject):
         score = self.map(self.level_factor[-2], self.level_factor[-1], 0, 1000, self.score)
         score_block = Rect(170, 50, score, 30)
         pygame.draw.rect(screen, [0, 255, 255], score_block)
-        for b in range(self.blood):
+        b = -1
+        for b in range(int(self.blood)):
             pygame.draw.rect(screen, [255,0,0], (x-70+14*b, y-90, 10, 10))
+        b += 1
+        w = max(self.map(0, 1, 0, 10, (self.blood - int(self.blood))), 0)
+        if w:
+            pygame.draw.rect(screen, [255, 0, 0], (x-70+14*b, y-90, w, 10))
 
         font = pygame.font.Font('data/freesansbold.ttf', 30)
         text = font.render('level: %s' % self.level, True, [255, 255, 255])
@@ -76,20 +88,12 @@ class Player(GameObject):
         '''更新狀態'''
         #如果分數超過最高就升等
         if self.score > self.level_factor[-1]:
-            self.level += 1
-            self.level_factor.append(next(self.next_score))
-            upSound.play()
-
+            self.level_up()
         zombie = self.master.monster.touch(self, True)
         #如果碰到殭屍、狙擊手、敵方子彈
         if self.delay(500) and zombie:
-            self.last_time = pygame.time.get_ticks()
-            self.blood -= 1
+            self.hit(zombie)
             #向反方向反彈
-            self.near((zombie.x, zombie.y), -30)
-            if zombie in self.master.monster.bullet:
-                zombie.kill()
-            touchSound.play()
         #更新玩家子彈
         for b in self.bullet:
             b.update()
@@ -105,7 +109,7 @@ class Player(GameObject):
             self.v[0] += -self.speed
         super().update(lambda :self.master.field.touch(self))
         now = pygame.time.get_ticks()
-        self.cooldown = self.map(0, cd_time, 0, 1, min(now - self.last_shut, cd_time))
+        self.cooldown = self.map(0, self.CD, 0, 1, min(now - self.last_shut, self.CD))
         
         #如果正在發射狀態就執行
         if self.shuting:
@@ -127,6 +131,23 @@ class Player(GameObject):
     def addPoint(self, score):
         self.score += score
 
+    def hit(self, person):
+        self.last_time = pygame.time.get_ticks()
+        self.blood -= max(person.power-self.DEF, 0)
+        self.near((person.x, person.y), -30)
+        if person in self.master.monster.bullet:
+            person.kill()
+        touchSound.play()
+        print(self.blood)
+
+    def addBlood(self):
+        self.blood = min(self.blood+1, self.HP)
+
+    def level_up(self):
+        self.level += 1
+        self.level_factor.append(next(self.next_score))
+        self.master.card.level_up()
+        upSound.play()
 
 
 class Gun(GameObject):

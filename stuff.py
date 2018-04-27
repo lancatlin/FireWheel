@@ -73,7 +73,7 @@ class Heart(Stuff):
         self.color = [255, 0, 0]
 
     def plus(self):
-        self.player.blood += 1 if self.player.blood < 10 else 0
+        self.player.addBlood()
 
     def kill(self):
         try:

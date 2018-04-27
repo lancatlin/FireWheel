@@ -8,6 +8,7 @@ from player import Player
 import wall
 import monster
 import stuff
+import card
 
 setting = json.load(open('setting.json', 'r'))
 bg = setting['bg']
@@ -32,6 +33,7 @@ class Main:
         self.player.repaint(screen, position)
         self.monster.repaint(screen, position)
         self.stuff.repaint(screen, position)
+        self.card.repaint(screen, position)
         pygame.display.flip()
         pygame.display.update()
 
@@ -41,6 +43,7 @@ class Main:
         self.field.update()
         self.monster.update()
         self.stuff.update()
+        self.card.update()
 
     def gameover(self, screen, tops=[]):
         '''結束畫面'''
@@ -74,6 +77,7 @@ class Main:
         self.player = Player(self)
         self.monster = monster.MonsterManager(self)
         self.stuff = stuff.StuffManager(self)
+        self.card = card.CardManager(self)
 
     def begin(self):
         '''主程序'''
@@ -108,7 +112,7 @@ class Main:
                         sound.play(-1)
             if not play:
                 self.gameover(self.screen, tops)    
-            elif self.player.blood == 0:
+            elif self.player.blood <= 0:
                 play = False
                 sound.stop()
                 tops = self.top(self.player.score)
